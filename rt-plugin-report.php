@@ -246,7 +246,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			}
 
-			$slug = sanitize_title( $_POST['slug'] );
+			if ( isset( $_POST['slug'] ) ) {
+				$slug = sanitize_title( wp_unslash( $_POST['slug'] ) );
+			}
 
 			$report = $this->assemble_plugin_report( $slug );
 
