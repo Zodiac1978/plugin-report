@@ -152,7 +152,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					echo $this->render_table_row( $cache );
 				} else {
 					// Render a special table row that's used as a signal to the front-end js that new data is needed.
-					echo '<tr class="plugin-report-row-temp-' . $slug . '"><td colspan="' . self::COLS_PER_ROW . '">' . esc_html__( 'Loading...', 'plugin-report' ) . '</td></tr>';
+					echo '<tr class="plugin-report-row-temp-' . esc_attr( $slug ) . '"><td colspan="' . (int) self::COLS_PER_ROW . '">' . esc_html__( 'Loading...', 'plugin-report' ) . '</td></tr>';
 				}
 			}
 
