@@ -125,7 +125,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			echo '</p>';
 			echo '<h3>' . esc_html__( 'Currently installed plugins', 'plugin-report' ) . '</h3>';
 			echo '<p id="plugin-report-progress"></p>';
-			echo '<p>';
 
 			// The report's main table.
 			echo '<table id="plugin-report-table" class="wp-list-table widefat fixed striped">';
@@ -159,7 +158,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 			echo '</tbody>';
 			echo '</table>';
-			echo '</p>';
 
 			echo '<p id="plugin-report-buttons"></p>';
 
