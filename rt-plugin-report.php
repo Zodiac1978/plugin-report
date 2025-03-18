@@ -639,7 +639,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		/**
 		 * Assess the risk associated with low ratings or poor compatibility feedback, return corresponding CSS class.
 		 *
-		 * @param string $time_diff   Time difference.
+		 * @param int $time_diff   Time difference in seconds.
 		 */
 		private function get_timediff_risk_classname( $time_diff ) {
 			$days = $time_diff / ( DAY_IN_SECONDS );
