@@ -317,7 +317,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 							$report['local_info']  = $plugin;
 							$report['file_path']   = $key;
-							$report['auto-update'] = in_array( $key, $auto_updates );
+							$report['auto-update'] = in_array( $key, $auto_updates, true );
 
 							// Change any whitespace to default space.
 							$report['local_info']['Name'] = preg_replace( '/\s+/u', ' ', $report['local_info']['Name'] );
@@ -397,7 +397,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			} else {
 				// If the returned HTTP code is 200, the page was found, so return true.
 				$response_code = wp_remote_retrieve_response_code( $response );
-				if ( '200' == $response_code ) {
+				if ( 200 === $response_code ) {
 					return true;
 				}
 			}
@@ -417,7 +417,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			// Get the latest WP release version number.
 			$wp_latest = $this->check_core_updates();
 			// Check if the report is valid.
-			if ( null === $report ) {
+			if ( false === $report ) {
 				$html = $this->render_error_row( esc_html__( 'No plugin data available.', 'plugin-report' ) );
 			} else {
 				// Start the new table row.
