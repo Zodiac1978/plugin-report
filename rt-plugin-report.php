@@ -754,10 +754,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 * @param string $slug   Plugin slug.
 		 */
 		private function clear_cache_item( $slug ) {
-			if ( isset( $slug ) ) {
-				$cache_key = $this->create_cache_key( $slug );
-				delete_site_transient( $cache_key );
-			}
+			$cache_key = $this->create_cache_key( $slug );
+			delete_site_transient( $cache_key );
 		}
 
 
