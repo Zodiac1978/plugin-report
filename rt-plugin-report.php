@@ -665,7 +665,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			global $wp_version;
 			$update = get_preferred_from_update_core();
 			// Bail out of no valid response, or false.
-			if ( ! $update || false === $update ) {
+			if ( false === $update ) {
 				return $wp_version;
 			}
 			// If latest, return current version number.
