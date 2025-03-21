@@ -380,12 +380,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 		/**
 		 * Check if the plugin is present in WordPress's SVN repository.
-		 * 
+		 *
 		 * Function adapted from the 'Enhanced Plugin Admin' plugin by Marios Alexandrou.
 		 * See: https://plugins.trac.wordpress.org/browser/enhanced-plugin-admin/trunk/enhanced-plugin-admin.php
-		 * 
+		 *
 		 * @param string $slug The plugin's slug.
-		 * 
+		 *
 		 * @return boolean True if found, false if not.
 		 */
 		private function check_exists_in_svn( $slug ) {
@@ -409,7 +409,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		/**
 		 * From a report, generate an HTML table row with relevant data for the plugin.
 		 *
-		 * @param array $report Report of plugin.
+		 * @param array|false $report Report of plugin.
 		 */
 		private function render_table_row( $report ) {
 			// Get the current WP version number.
