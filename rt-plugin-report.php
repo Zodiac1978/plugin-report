@@ -121,7 +121,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			} else {
 				$page_url = 'plugins.php?page=plugin_report';
 			}
-			echo '<a href="' . admin_url( $page_url . '&clear_cache=' . current_time( 'timestamp' ) ) . '">' . esc_html__( 'Clear cached plugin data and reload', 'plugin-report' ) . '</a>';
+			echo '<a href="' . esc_attr( admin_url( $page_url . '&clear_cache=' . current_time( 'timestamp' ) ) ) . '">' . esc_html__( 'Clear cached plugin data and reload', 'plugin-report' ) . '</a>';
 			echo '</p>';
 			echo '<h2>' . esc_html__( 'Currently installed plugins', 'plugin-report' ) . '</h2>';
 			echo '<p id="plugin-report-progress"></p>';
@@ -344,7 +344,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 					// Check wordpress.org only if "Update URI" plugin header is not set or set to wordpress.org.
 					$parsed_repo_url = wp_parse_url( $report['local_info']['UpdateURI'] );
-					$repo_host = isset( $parsed_repo_url['host'] ) ? $parsed_repo_url['host'] : null;
+					$repo_host       = isset( $parsed_repo_url['host'] ) ? $parsed_repo_url['host'] : null;
 					if ( empty( $repo_host ) || strtolower( $repo_host ) === 'w.org' || strtolower( $repo_host ) === 'wordpress.org' ) {
 						$returned_object = plugins_api( 'plugin_information', $args );
 					}
