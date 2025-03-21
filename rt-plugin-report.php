@@ -390,14 +390,14 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 */
 		private function check_exists_in_svn( $slug ) {
 			// Attempt to load the plugin's SVN repo page.
-			$response = wp_remote_get( "http://svn.wp-plugins.org/" . $slug . "/" );
+			$response = wp_remote_get( 'http://svn.wp-plugins.org/' . $slug . '/' );
 			// If the return value was a WP_Error, assume the answer is no.
-			if( is_wp_error( $response ) ) {
+			if ( is_wp_error( $response ) ) {
 				return false;
 			} else {
 				// If the returned HTTP code is 200, the page was found, so return true.
 				$response_code = wp_remote_retrieve_response_code( $response );
-				if( '200' == $response_code ) {
+				if ( '200' == $response_code ) {
 					return true;
 				}
 			}
@@ -448,7 +448,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 						// Plugin should be available on wp.org, check if we got a 'not found' error.
 						if ( isset( $report['repo_error_code'] ) && $report['repo_error_code'] === 'plugins_api_failed' ) {
 							// Plugin is not available in the wp.org repo.
-							if( isset( $report['exists_in_svn'] ) && $report['exists_in_svn'] === true ) {
+							if ( isset( $report['exists_in_svn'] ) && $report['exists_in_svn'] === true ) {
 								$html .= '<td class="' . self::CSS_CLASS_HIGH . '">' . __( 'wordpress.org, plugin closed', 'plugin-report' ) . '</td>';
 							} else {
 								$html .= '<td class="' . self::CSS_CLASS_HIGH . '">' . __( 'wordpress.org, plugin not found', 'plugin-report' ) . '</td>';
@@ -458,7 +458,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 							$html .= '<td class="' . self::CSS_CLASS_LOW . '">wordpress.org</td>';
 						}
 					} else {
-						if ( $parsed_repo_url && isset( $parsed_repo_url[ 'host' ] ) ) {
+						if ( $parsed_repo_url && isset( $parsed_repo_url['host'] ) ) {
 							// Update URI is a valid URL, display the host.
 							$html .= '<td class="' . self::CSS_CLASS_MED . '">' . $repo_host . '</td>';
 						} else {
@@ -466,7 +466,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 							$html .= '<td class="' . self::CSS_CLASS_MED . '">' . __( 'Updates disabled', 'plugin-report' ) . '</td>';
 						}
 					}
-				} else if ( version_compare( $wp_version, '5.8', '<' ) ) {
+				} elseif ( version_compare( $wp_version, '5.8', '<' ) ) {
 					$html .= $this->render_error_cell( esc_html__( 'Only available in WP 5.8+', 'plugin-report' ) );
 				} else {
 					$html .= $this->render_error_cell();
