@@ -243,11 +243,13 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 			// Check if get_plugins() function exists.
 			if ( ! function_exists( 'plugins_api' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+				require_once get_home_path() . 'wp-admin/includes/plugin-install.php';
 			}
 
 			if ( isset( $_POST['slug'] ) ) {
 				$slug = sanitize_title( wp_unslash( $_POST['slug'] ) );
+			} else {
+				$slug = ''; // Set value to an empty string.
 			}
 
 			$report = $this->assemble_plugin_report( $slug );
