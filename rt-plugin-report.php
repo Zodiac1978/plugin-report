@@ -669,11 +669,11 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				return $wp_version;
 			}
 			// If latest, return current version number.
-			if ( 'latest' === $update->response ) {
+			if ( is_object( $update ) && 'latest' === $update->response ) {
 				return $wp_version;
 			}
 			// Return the preferred update's version number.
-			return $update->version;
+			return is_object( $update ) ? $update->version : $update['version'];
 		}
 
 
