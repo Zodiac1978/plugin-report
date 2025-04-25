@@ -13,5 +13,8 @@
 			  "IS_PLAYGROUND_PREVIEW": true
 			}
 		}
-	]
+	],
+	"features": {
+		"networking": true
+	},
 }
