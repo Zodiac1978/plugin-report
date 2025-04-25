@@ -5,3 +5,5 @@ parameters:
   level: 5
   paths:
     - rt-plugin-report.php
+  ignoreErrors:
+    - '#Path in require_once\(\) "\./wp-admin/includes/plugin-install\.php" is not a file or it does not exist#'
