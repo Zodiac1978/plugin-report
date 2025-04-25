@@ -543,7 +543,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				}
 
 				// Tested up to.
-				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->tested ) ) {
+				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->tested ) && ! empty( $report['repo_info']->tested ) ) {
 					$css_class = $this->get_version_risk_classname( $report['repo_info']->tested, $wp_latest, true );
 					$html     .= '<td class="' . $css_class . '">' . $report['repo_info']->tested . '</td>';
 				} else {
