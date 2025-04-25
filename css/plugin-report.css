@@ -1,14 +1,14 @@
 /* risk indicator classes */
 
 td.pr-risk-low {
-	background-color: rgba( 0, 255, 0, 0.075 );
-	color: #090 !important;
+	background-color: #edfaef;
+	color: #007017 !important;
 	font-weight: bold;
 }
 
 td.pr-risk-high {
-	background-color: rgba( 255, 0, 0, 0.075 );
-	color: #c00 !important;
+	background-color: #fcf0f1;
+	color: #b32d2e !important;
 	font-weight: bold;
 }
 
