@@ -1,0 +1,10 @@
+# Directories
+/.wordpress-org
+/.git
+/.github
+
+# Files
+/.distignore
+/.gitignore
+/composer.json
+/phpstan.neon
