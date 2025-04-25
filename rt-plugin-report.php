@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       Plugin Report
- * Plugin URI:        https://roytanck.com/?p=277
+ * Plugin URI:        https://wordpress.org/plugins/plugin-report/
  * Description:       Provides detailed information about currently installed plugins
- * Version:           2.1.1
+ * Version:           2.2.0
  * Requires at least: 4.6
  * Requires PHP:      5.6
- * Author:            Roy Tanck
- * Author URI:        https://roytanck.com
+ * Author:            Torsten Landsiedel
+ * Author URI:        https://torstenlandsiedel.de
  * License:           GPLv3
  * Network:           true
  */
@@ -31,7 +31,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		const CSS_CLASS_HIGH = 'pr-risk-high';
 
 		// Other class constants.
-		const PLUGIN_VERSION        = '2.1.1';
+		const PLUGIN_VERSION        = '2.2.0';
 		const COLS_PER_ROW          = 9;
 		const CACHE_LIFETIME        = DAY_IN_SECONDS;
 		const CACHE_LIFETIME_NOREPO = WEEK_IN_SECONDS;

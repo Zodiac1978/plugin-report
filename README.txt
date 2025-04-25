@@ -1,10 +1,10 @@
 === Plugin Report ===
 Contributors: roytanck, zodiac1978, pedromendonca
-Tags: admin, plugins, multisite
+Tags: plugin info, admin, plugins, multisite
 Requires at least: 4.6
-Tested up to: 6.6
+Tested up to: 6.8
 Requires PHP: 5.6
-Stable tag: 2.1.1
+Stable tag: 2.2.0
 License: GPLv3
 
 A WordPress plugin that provides detailed information about currently installed plugins.
@@ -17,6 +17,13 @@ A WordPress plugin that provides detailed information about currently installed 
 * Find plugins that are no longer active on multisite installs
 
 
+== Frequently Asked Questions ==
+
+= Where can I submit bug reports or feature requests? =
+
+The development of this plugin happens on [GitHub](https://github.com/Zodiac1978/plugin-report). Feel free to [submit issues](https://github.com/Zodiac1978/plugin-report/issues) there.
+
+
 == Screenshots ==
  
 1. Your plugin report is found under the Plugins menu, or in the Network section if your site is a multisite install.
@@ -24,10 +31,18 @@ A WordPress plugin that provides detailed information about currently installed 
 
 == Credits ==
 
+Thanks to Roy Tanck for trusting me to adopt this great plugin. Hartelijk bedankt!
+
 Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [tablesort JavaScript library](https://github.com/tristen/tablesort) licensed under the MIT License.
 
 
 == Changelog ==
+
+= 2.2.0 (2025-04-25) =
+* Tablesort updated to the latest version (5.6.0)
+* Many code improvements (Thanks to PHPStan, WPCS and Plugin Check)
+* New ownership
+* Tested with WP 6.8
 
 = 2.1.1 (2022-06-17) =
 * Improved behavior of the repository column on older WordPress versions (thanks, @zodiac1978)
