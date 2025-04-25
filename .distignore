@@ -2,9 +2,13 @@
 /.wordpress-org
 /.git
 /.github
+/vendor
 
 # Files
 /.distignore
 /.gitignore
 /composer.json
+/composer.lock
 /phpstan.neon
+/output.log
+/docker_tag
