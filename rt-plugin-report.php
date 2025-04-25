@@ -70,7 +70,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			add_plugins_page(
 				esc_html_x( 'Plugin Report', 'Page and menu title', 'plugin-report' ),
 				esc_html_x( 'Plugin Report', 'Page and menu title', 'plugin-report' ),
-				'manage_options',
+				is_multisite() ? 'manage_sites' : 'manage_options',
 				'plugin_report',
 				array( $this, 'settings_page' )
 			);
