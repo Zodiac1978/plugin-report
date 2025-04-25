@@ -4,7 +4,7 @@ Tags: plugin info, admin, plugins, multisite
 Requires at least: 4.6
 Tested up to: 6.8
 Requires PHP: 5.6
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv3
 
 A WordPress plugin that provides detailed information about currently installed plugins.
@@ -37,6 +37,9 @@ Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [table
 
 
 == Changelog ==
+
+= 2.2.1 (2025-04-25) =
+* Fix plugin for subfolder installs
 
 = 2.2.0 (2025-04-25) =
 * Tablesort updated to the latest version (5.6.0)

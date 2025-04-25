@@ -3,7 +3,7 @@
  * Plugin Name:       Plugin Report
  * Plugin URI:        https://wordpress.org/plugins/plugin-report/
  * Description:       Provides detailed information about currently installed plugins
- * Version:           2.2.0
+ * Version:           2.2.1
  * Requires at least: 4.6
  * Requires PHP:      5.6
  * Author:            Torsten Landsiedel
@@ -243,7 +243,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 			// Check if get_plugins() function exists.
 			if ( ! function_exists( 'plugins_api' ) ) {
-				require_once get_home_path() . 'wp-admin/includes/plugin-install.php';
+				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			}
 
 			if ( isset( $_POST['slug'] ) ) {
