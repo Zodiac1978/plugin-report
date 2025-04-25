@@ -4,7 +4,7 @@
 
 A WordPress plugin that provides detailed information about currently installed plugins.
 
-##Plugin Report will allow you to:
+## Plugin Report will allow you to:
 
 * Spot plugins that are no longer maintained.
 * Get a quick overview of the "plugin health" of your site.
