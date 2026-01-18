@@ -38,7 +38,7 @@ Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [table
 
 == Changelog ==
 
-= 2.2.2 (2025-12-28) =
+= 2.2.2 (2026-01-18) =
 * Tested up to WordPress 6.9
 * Tablesort updated to the latest version (5.7.0)
 * Minor optimization loading the Javascript
