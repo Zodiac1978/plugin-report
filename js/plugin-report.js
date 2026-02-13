@@ -4,6 +4,7 @@ jQuery(document).ready( function( $ ){
 	var rtpr_slugs_array = rtpr_slugs.split(',');
 	var rtpr_nrof_plugins = rtpr_slugs_array.length;
 	var rtpr_progress = 0;
+	var rtpr_done = false;
 
 
 	function rtpr_process_next_plugin(){
@@ -23,19 +24,25 @@ jQuery(document).ready( function( $ ){
 			}
 			$( '#plugin-report-progress progress' ).prop( 'value', perc );
 			rtpr_progress++;
-		} else {
-			// Remove the progress bar.
-			$('#plugin-report-progress').html( '' );
-			// initialize sorting on table
-			new Tablesort(document.getElementById('plugin-report-table'));
-			// Create the export button.
-			$('#plugin-report-buttons').append('<button class="button" href="#" id="plugin-report-export-btn">' + plugin_report_vars.export_btn + '</button>');
-			// Export button event handler.
-			$('#plugin-report-export-btn').click( function( e ){
-				// Call the function that does the exporting.
-				rtpr_export_table();
-			});
-		}
+			} else {
+				// Remove the progress bar.
+				$('#plugin-report-progress').html( '' );
+				// Guard against duplicate finalization caused by recursive calls.
+				if ( rtpr_done ) {
+					return;
+				}
+				rtpr_done = true;
+				// initialize sorting on table
+				new Tablesort(document.getElementById('plugin-report-table'));
+				// Create the export button.
+				$('#plugin-report-buttons').empty().append('<button class="button" id="plugin-report-export-btn">' + plugin_report_vars.export_btn + '</button>');
+				// Export button event handler.
+				$('#plugin-report-export-btn').off('click').on('click', function( e ){
+					e.preventDefault();
+					// Call the function that does the exporting.
+					rtpr_export_table();
+				});
+			}
 	}
 
 
