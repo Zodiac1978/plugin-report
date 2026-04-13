@@ -182,12 +182,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 * @param string $hook  Screen hook.
 		 */
 		public function enqueue_assets( $hook ) {
-			// Load CSS and cache-clear button on the native plugin list page.
+			// Load CSS on the native plugin list page.
 			if ( 'plugins.php' === $hook ) {
 				wp_enqueue_style( 'plugin-report-css', plugin_dir_url( __FILE__ ) . 'css/plugin-report.css', array(), self::PLUGIN_VERSION );
-				$url   = wp_nonce_url( admin_url( 'plugins.php?pr_clear_cache=1' ), 'pr_clear_cache' );
-				$label = esc_js( __( 'Clear cached plugin data and reload', 'plugin-report' ) );
-				wp_add_inline_script( 'jquery', 'jQuery(function($){var b=document.querySelector(".page-title-action");if(b){var a=document.createElement("a");a.href="' . esc_url( $url ) . '";a.className="page-title-action";a.textContent="' . $label . '";b.parentNode.insertBefore(a,b.nextSibling);}});' );
+				$this->pr_clear_cache_url   = wp_nonce_url( admin_url( 'plugins.php?pr_clear_cache=1' ), 'pr_clear_cache' );
+				$this->pr_clear_cache_label = __( 'Clear cached plugin data and reload', 'plugin-report' );
+				add_action( 'admin_print_footer_scripts', array( $this, 'render_clear_cache_button_script' ) );
 				return;
 			}
 			// Check if we're on the right screen.
@@ -238,6 +238,26 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$slug = $this->get_plugin_slug( $key );
 				$this->assemble_plugin_report( $slug );
 			}
+		}
+
+
+		/**
+		 * Output inline script to place the cache-clear link next to "Add Plugin".
+		 */
+		public function render_clear_cache_button_script() {
+			?>
+			<script>
+			(function() {
+				var btn = document.querySelector( '.page-title-action' );
+				if ( ! btn ) return;
+				var a = document.createElement( 'a' );
+				a.href = <?php echo wp_json_encode( $this->pr_clear_cache_url ); ?>;
+				a.className = 'page-title-action';
+				a.textContent = <?php echo wp_json_encode( $this->pr_clear_cache_label ); ?>;
+				btn.parentNode.insertBefore( a, btn.nextSibling );
+			})();
+			</script>
+			<?php
 		}
 
 
