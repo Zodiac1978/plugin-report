@@ -835,5 +835,4 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 	function plugin_report_get_data( $slug ) {
 		return RT_Plugin_Report::get_report( $slug );
 	}
-
 }
