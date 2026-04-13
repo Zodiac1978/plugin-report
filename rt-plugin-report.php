@@ -82,7 +82,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 */
 		public function settings_page() {
 			// Check user capabilities, just to be sure.
-			if ( ! current_user_can( 'manage_options' ) ) {
+			if ( ! current_user_can( is_multisite() ? 'manage_sites' : 'manage_options' ) ) {
 				wp_die();
 			}
 			// Assemble information we'll need.
@@ -92,8 +92,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			// Check wether a core update is available.
 			$wp_latest = $this->check_core_updates();
 
-			// Refresh the cache, but only if this is a fresh timestamp (not if the page has been refreshed with the timestamp still in the URL).
-			if ( isset( $_GET['clear_cache'] ) ) {
+			// Refresh the cache, but only if nonce is valid and this is a fresh timestamp (not if the page has been refreshed with the timestamp still in the URL).
+			if ( isset( $_GET['clear_cache'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'plugin_report_clear_cache' ) ) {
 				$new_timestamp  = intval( $_GET['clear_cache'] );
 				$last_timestamp = intval( get_site_transient( 'plugin_report_cache_cleared' ) );
 				if ( ! $last_timestamp || $new_timestamp > $last_timestamp ) {
@@ -121,7 +121,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			} else {
 				$page_url = 'plugins.php?page=plugin_report';
 			}
-			echo '<a href="' . esc_attr( admin_url( $page_url . '&clear_cache=' . current_time( 'timestamp' ) ) ) . '">' . esc_html__( 'Clear cached plugin data and reload', 'plugin-report' ) . '</a>';
+			echo '<a href="' . esc_url( wp_nonce_url( admin_url( $page_url . '&clear_cache=' . current_time( 'timestamp' ) ), 'plugin_report_clear_cache' ) ) . '">' . esc_html__( 'Clear cached plugin data and reload', 'plugin-report' ) . '</a>';
 			echo '</p>';
 			echo '<h2>' . esc_html__( 'Currently installed plugins', 'plugin-report' ) . '</h2>';
 			echo '<p id="plugin-report-progress"></p>';
@@ -237,7 +237,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			}
 
 			// Check user capabilites, just to be sure.
-			if ( ! current_user_can( 'manage_options' ) ) {
+			if ( ! current_user_can( is_multisite() ? 'manage_sites' : 'manage_options' ) ) {
 				wp_die();
 			}
 
@@ -390,7 +390,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 */
 		private function check_exists_in_svn( $slug ) {
 			// Attempt to load the plugin's SVN repo page.
-			$response = wp_remote_get( 'http://svn.wp-plugins.org/' . $slug . '/' );
+			$response = wp_remote_get( 'https://plugins.svn.wordpress.org/' . rawurlencode( $slug ) . '/' );
 			// If the return value was a WP_Error, assume the answer is no.
 			if ( is_wp_error( $response ) ) {
 				return false;
@@ -421,20 +421,20 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$html = $this->render_error_row( esc_html__( 'No plugin data available.', 'plugin-report' ) );
 			} else {
 				// Start the new table row.
-				$html = '<tr class="plugin-report-row-' . $report['slug'] . '">';
+				$html = '<tr class="plugin-report-row-' . esc_attr( $report['slug'] ) . '">';
 
 				// Name.
 				if ( isset( $report['local_info']['PluginURI'] ) && ! empty( $report['local_info']['PluginURI'] ) ) {
-					$html .= '<td><a href="' . $report['local_info']['PluginURI'] . '"><strong>' . $report['local_info']['Name'] . '</strong></a></td>';
+					$html .= '<td><a href="' . esc_url( $report['local_info']['PluginURI'] ) . '"><strong>' . esc_html( $report['local_info']['Name'] ) . '</strong></a></td>';
 				} else {
-					$html .= '<td><strong>' . $report['local_info']['Name'] . '</strong></td>';
+					$html .= '<td><strong>' . esc_html( $report['local_info']['Name'] ) . '</strong></td>';
 				}
 
 				// Author.
 				if ( isset( $report['local_info']['AuthorURI'] ) && ! empty( $report['local_info']['AuthorURI'] ) ) {
-					$html .= '<td><a href="' . $report['local_info']['AuthorURI'] . '">' . $report['local_info']['Author'] . '</a></td>';
+					$html .= '<td><a href="' . esc_url( $report['local_info']['AuthorURI'] ) . '">' . esc_html( $report['local_info']['Author'] ) . '</a></td>';
 				} else {
-					$html .= '<td>' . $report['local_info']['Author'] . '</td>';
+					$html .= '<td>' . esc_html( $report['local_info']['Author'] ) . '</td>';
 				}
 
 				// Repository.
@@ -460,7 +460,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					} else {
 						if ( $parsed_repo_url && isset( $parsed_repo_url['host'] ) ) {
 							// Update URI is a valid URL, display the host.
-							$html .= '<td class="' . self::CSS_CLASS_MED . '">' . $repo_host . '</td>';
+							$html .= '<td class="' . self::CSS_CLASS_MED . '">' . esc_html( $repo_host ) . '</td>';
 						} else {
 							// Some other value (like 'false'), so assume updates are disabled.
 							$html .= '<td class="' . self::CSS_CLASS_MED . '">' . __( 'Updates disabled', 'plugin-report' ) . '</td>';
@@ -496,7 +496,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				if ( isset( $report['repo_info'] ) ) {
 					$css_class = $this->get_version_risk_classname( $report['local_info']['Version'], $report['repo_info']->version );
 					$html     .= '<td class="' . $css_class . '">';
-					$html     .= $report['local_info']['Version'];
+					$html     .= esc_html( $report['local_info']['Version'] );
 					if ( $report['local_info']['Version'] !== $report['repo_info']->version ) {
 						// Any platform upgrades needed?
 						$needs_php_upgrade = isset( $report['repo_info']->requires_php ) ? version_compare( phpversion(), $report['repo_info']->requires_php, '<' ) : false;
@@ -504,21 +504,21 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 						// Create the additional message.
 						if ( $needs_wp_upgrade && $needs_php_upgrade ) {
 							/* translators: %1$s: Plugin version number, %2$s: WP version number, %3$s: PHP version number */
-							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%1$s available, requires WP %2$s and PHP %3$s)', 'plugin-report' ), $report['repo_info']->version, $report['repo_info']->requires, $report['repo_info']->requires_php ) . '</span>';
+							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%1$s available, requires WP %2$s and PHP %3$s)', 'plugin-report' ), esc_html( $report['repo_info']->version ), esc_html( $report['repo_info']->requires ), esc_html( $report['repo_info']->requires_php ) ) . '</span>';
 						} elseif ( $needs_wp_upgrade ) {
 							/* translators: %1$s: Plugin version number, %2$s: WP version number. */
-							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%1$s available, requires WP %2$s)', 'plugin-report' ), $report['repo_info']->version, $report['repo_info']->requires ) . '</span>';
+							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%1$s available, requires WP %2$s)', 'plugin-report' ), esc_html( $report['repo_info']->version ), esc_html( $report['repo_info']->requires ) ) . '</span>';
 						} elseif ( $needs_php_upgrade ) {
 							/* translators: %1$s: Plugin version number, %2$s: PHP version number. */
-							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%1$s available, requires PHP %2$s)', 'plugin-report' ), $report['repo_info']->version, $report['repo_info']->requires_php ) . '</span>';
+							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%1$s available, requires PHP %2$s)', 'plugin-report' ), esc_html( $report['repo_info']->version ), esc_html( $report['repo_info']->requires_php ) ) . '</span>';
 						} else {
 							/* translators: %s: Plugin version number. */
-							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%s available)', 'plugin-report' ), $report['repo_info']->version ) . '</span>';
+							$html .= ' <span class="pr-additional-info">' . sprintf( esc_html__( '(%s available)', 'plugin-report' ), esc_html( $report['repo_info']->version ) ) . '</span>';
 						}
 					}
 					$html .= '</td>';
 				} else {
-					$html .= '<td>' . $report['local_info']['Version'] . '</td>';
+					$html .= '<td>' . esc_html( $report['local_info']['Version'] ) . '</td>';
 				}
 
 				// Auto-update.
@@ -537,7 +537,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					$time_update = new DateTime( $report['repo_info']->last_updated );
 					$time_diff   = human_time_diff( $time_update->getTimestamp(), current_time( 'timestamp' ) );
 					$css_class   = $this->get_timediff_risk_classname( current_time( 'timestamp' ) - $time_update->getTimestamp() );
-					$html       .= '<td class="' . $css_class . '" data-sort="' . $time_update->getTimestamp() . '">' . $time_diff . '</td>';
+					$html       .= '<td class="' . $css_class . '" data-sort="' . esc_attr( $time_update->getTimestamp() ) . '">' . esc_html( $time_diff ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
 				}
@@ -545,7 +545,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Tested up to.
 				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->tested ) && ! empty( $report['repo_info']->tested ) ) {
 					$css_class = $this->get_version_risk_classname( $report['repo_info']->tested, $wp_latest, true );
-					$html     .= '<td class="' . $css_class . '">' . $report['repo_info']->tested . '</td>';
+					$html     .= '<td class="' . $css_class . '">' . esc_html( $report['repo_info']->tested ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
 				}
@@ -553,7 +553,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Overall user rating.
 				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->num_ratings ) && isset( $report['repo_info']->rating ) ) {
 					$css_class  = ( intval( $report['repo_info']->num_ratings ) > 0 ) ? $this->get_percentage_risk_classname( intval( $report['repo_info']->rating ) ) : '';
-					$value_text = ( ( intval( $report['repo_info']->num_ratings ) > 0 ) ? $report['repo_info']->rating . '%' : esc_html__( 'No data available', 'plugin-report' ) );
+					$value_text = ( ( intval( $report['repo_info']->num_ratings ) > 0 ) ? esc_html( $report['repo_info']->rating ) . '%' : esc_html__( 'No data available', 'plugin-report' ) );
 					$html      .= '<td class="' . $css_class . '">' . $value_text . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
