@@ -145,7 +145,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 			foreach ( $plugins as $key => $plugin ) {
 				$slug  = $this->get_plugin_slug( $key );
-				$cache = self::get_report( $slug );
+				$cache = $this->get_report( $slug );
 				if ( $cache ) {
 					// Use the cached report to create a table row.
 					echo $this->render_table_row( $cache );
@@ -783,7 +783,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 *
 		 * @return array|null Report data array, or null if the slug is empty or not found.
 		 */
-		public static function get_report( $slug ) {
+		public function get_report( $slug ) {
 			if ( empty( $slug ) ) {
 				return null;
 			}
@@ -793,15 +793,14 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			}
 
-			$instance = new self();
-			$cache_key = $instance->create_cache_key( $slug );
+			$cache_key = $this->create_cache_key( $slug );
 			$cache     = get_site_transient( $cache_key );
 
 			if ( ! empty( $cache ) ) {
 				return $cache;
 			}
 
-			return $instance->assemble_plugin_report( $slug );
+			return $this->assemble_plugin_report( $slug );
 		}
 
 	}
@@ -814,9 +813,10 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 	/**
 	 * Public API: get Plugin Report data for a plugin.
 	 *
-	 * Convenience wrapper around RT_Plugin_Report::get_report(). Returns cached
-	 * data when available, otherwise fetches fresh data from the wordpress.org API
-	 * and caches it. Safe to call from any plugin — if Plugin Report is not active
+	 * Convenience wrapper around RT_Plugin_Report::get_report(). Uses a static
+	 * instance to avoid repeated object creation. Returns cached data when
+	 * available, otherwise fetches fresh data from the wordpress.org API and
+	 * caches it. Safe to call from any plugin — if Plugin Report is not active
 	 * or the slug is invalid, returns null.
 	 *
 	 * Example usage:
@@ -833,6 +833,10 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 	 * @return array|null Report data array, or null if not available.
 	 */
 	function plugin_report_get_data( $slug ) {
-		return RT_Plugin_Report::get_report( $slug );
+		static $plugin_report = null;
+		if ( null === $plugin_report ) {
+			$plugin_report = new RT_Plugin_Report();
+		}
+		return $plugin_report->get_report( $slug );
 	}
 }
