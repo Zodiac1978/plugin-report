@@ -1,15 +1,15 @@
 jQuery(document).ready( function( $ ){
 
-	var rtpr_slugs = plugin_report_vars.plugin_slugs;
-	var rtpr_slugs_array = rtpr_slugs.split(',');
-	var rtpr_nrof_plugins = rtpr_slugs_array.length;
-	var rtpr_progress = 0;
-	var rtpr_done = false;
+	const rtpr_slugs = plugin_report_vars.plugin_slugs;
+	const rtpr_slugs_array = rtpr_slugs.split(',');
+	const rtpr_nrof_plugins = rtpr_slugs_array.length;
+	let rtpr_progress = 0;
+	let rtpr_done = false;
 
 
 	function rtpr_process_next_plugin(){
 		if( rtpr_slugs_array.length > 0 ){
-			var slug = rtpr_slugs_array.shift();
+			const slug = rtpr_slugs_array.shift();
 			if( $( '.plugin-report-row-temp-' + slug ).length ){
 				rtpr_get_plugin_info( slug );
 			} else {
@@ -17,7 +17,7 @@ jQuery(document).ready( function( $ ){
 			}
 		}
 		// update the progress information on the page
-		var perc = Math.ceil( ( rtpr_progress / rtpr_nrof_plugins ) * 100 );
+		const perc = Math.ceil( ( rtpr_progress / rtpr_nrof_plugins ) * 100 );
 		if( perc < 100 ){
 			if( ! $( '#plugin-report-progress' ).find( 'progress' ).length ){
 				$( '#plugin-report-progress' ).html( '<progress max="100" value="0"></progress>' );
@@ -47,7 +47,7 @@ jQuery(document).ready( function( $ ){
 
 
 	function rtpr_get_plugin_info( slug ){
-		var data = {
+		const data = {
 			'action': 'rt_get_plugin_info',
 			'slug': slug,
 			'nonce': plugin_report_vars.ajax_nonce
@@ -55,7 +55,7 @@ jQuery(document).ready( function( $ ){
 
 		jQuery.post( ajaxurl, data, function(response) {
 			// parse the response
-			obj = jQuery.parseJSON(response);
+			const obj = JSON.parse(response);
 			// replace the temporary table row with the new data
 			$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith( obj.html );
 			// on to the next...
@@ -69,8 +69,8 @@ jQuery(document).ready( function( $ ){
 
 	// Export CSV file.
 	function rtpr_export_table(){
-		var csv_data = '';
-		var counter = 0;
+		let csv_data = '';
+		let counter = 0;
 		// Loop trough the table header to add the header cells.
 		$('#plugin-report-table thead tr').each(function(){
 			// Use a column counter, because we'll need ot insert two extra columns.
@@ -102,7 +102,7 @@ jQuery(document).ready( function( $ ){
 				csv_data += $(this).text().replace(/,/g, ".") + ',';
 				// If this is one of the first two columns, add a url column.
 				if( counter <2 ){
-					var href = '';
+					let href = '';
 					$(this).find('a').each(function(){
 						// Get the href attribute, but strip any url vars to keep it short.
 						href = $(this).attr('href').split('#')[0].split('?')[0];
@@ -116,8 +116,8 @@ jQuery(document).ready( function( $ ){
 			csv_data += "\n";
 		});
 		// Create a link element, clickit and remove it.
-		var link = document.createElement( 'a' );
-		var now = new Date();
+		const link = document.createElement( 'a' );
+		const now = new Date();
 		link.download = 'plugin-report-' + now.getFullYear() + '-' + String( '0' + (now.getMonth()+1) ).slice(-2) + '-' + String( '0' + now.getDate() ).slice(-2) + '.csv';
 		link.href = URL.createObjectURL( new Blob( [ "\ufeff", csv_data ], {type: 'text/csv; header=present'} ) );
 		link.click();
