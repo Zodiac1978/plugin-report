@@ -70,9 +70,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			}
 			// Populate cache on the native plugins page so columns have data.
 			add_action( 'load-plugins.php', array( $this, 'populate_cache_on_plugins_page' ) );
-			// Add a cache-clear link to the native plugins page.
-			add_filter( 'views_plugins', array( $this, 'add_plugins_page_cache_link' ) );
-			add_filter( 'views_plugins-network', array( $this, 'add_plugins_page_cache_link' ) );
 		}
 
 
@@ -185,9 +182,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 * @param string $hook  Screen hook.
 		 */
 		public function enqueue_assets( $hook ) {
-			// Load CSS on the native plugin list page too.
+			// Load CSS and cache-clear button on the native plugin list page.
 			if ( 'plugins.php' === $hook ) {
 				wp_enqueue_style( 'plugin-report-css', plugin_dir_url( __FILE__ ) . 'css/plugin-report.css', array(), self::PLUGIN_VERSION );
+				$url   = wp_nonce_url( admin_url( 'plugins.php?pr_clear_cache=1' ), 'pr_clear_cache' );
+				$label = esc_js( __( 'Clear cached plugin data and reload', 'plugin-report' ) );
+				wp_add_inline_script( 'jquery', 'jQuery(function($){var b=document.querySelector(".page-title-action");if(b){var a=document.createElement("a");a.href="' . esc_url( $url ) . '";a.className="page-title-action";a.textContent="' . $label . '";b.parentNode.insertBefore(a,b.nextSibling);}});' );
 				return;
 			}
 			// Check if we're on the right screen.
@@ -238,20 +238,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$slug = $this->get_plugin_slug( $key );
 				$this->assemble_plugin_report( $slug );
 			}
-		}
-
-
-		/**
-		 * Add a "Refresh report data" link to the plugin list views.
-		 *
-		 * @param array $views Existing view links.
-		 *
-		 * @return array Modified view links.
-		 */
-		public function add_plugins_page_cache_link( $views ) {
-			$url = wp_nonce_url( add_query_arg( 'pr_clear_cache', '1' ), 'pr_clear_cache' );
-			$views['pr_refresh'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Refresh report data', 'plugin-report' ) . '</a>';
-			return $views;
 		}
 
 
