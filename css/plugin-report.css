@@ -33,6 +33,28 @@ span.pr-risk-medium {
 	font-weight: 600;
 }
 
+/* Warning rows in native plugin list */
+
+.pr-warning-icon {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	vertical-align: text-bottom;
+}
+
+.pr-warning-error .notice-error {
+	border-left-color: #b32d2e;
+}
+
+.pr-warning-error .notice-error p {
+	color: #b32d2e;
+	font-weight: 600;
+}
+
+.pr-warning-warning .notice-warning p {
+	color: #826200;
+}
+
 /* additional info in table cells */
 
 span.pr-additional-info {

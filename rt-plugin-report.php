@@ -561,7 +561,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			// Closed on wp.org.
 			if ( isset( $cache['repo_error_code'] ) && 'plugins_api_failed' === $cache['repo_error_code'] && isset( $cache['exists_in_svn'] ) && true === $cache['exists_in_svn'] ) {
 				$warnings[] = array(
-					'class'   => self::CSS_CLASS_HIGH,
+					'level'   => 'error',
+					'icon'    => 'dismiss',
 					'message' => __( 'This plugin has been closed on wordpress.org and will no longer receive updates.', 'plugin-report' ),
 				);
 			}
@@ -572,7 +573,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$days_since  = ( current_time( 'timestamp' ) - $time_update->getTimestamp() ) / DAY_IN_SECONDS;
 				if ( $days_since > 730 ) {
 					$warnings[] = array(
-						'class'   => self::CSS_CLASS_MED,
+						'level'   => 'warning',
+						'icon'    => 'warning',
 						'message' => __( 'This plugin has not been updated in over 2 years.', 'plugin-report' ),
 					);
 				}
@@ -583,7 +585,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$wp_latest = $this->check_core_updates();
 				if ( version_compare( $this->get_major_version( $cache['repo_info']->tested ), $this->get_major_version( $wp_latest ), '<' ) ) {
 					$warnings[] = array(
-						'class'   => self::CSS_CLASS_MED,
+						'level'   => 'warning',
+						'icon'    => 'info',
 						/* translators: %s: WordPress version number */
 						'message' => sprintf( __( 'This plugin has not been tested with the current major version of WordPress (%s).', 'plugin-report' ), $this->get_major_version( $wp_latest ) ),
 					);
@@ -600,10 +603,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			$colspan = count( $columns ) + 1; // +1 for the checkbox column.
 
 			foreach ( $warnings as $warning ) {
-				echo '<tr class="plugin-update-tr pr-warning-row">';
+				$notice_class = 'error' === $warning['level'] ? 'notice-error' : 'notice-warning';
+				echo '<tr class="plugin-update-tr pr-warning-row pr-warning-' . esc_attr( $warning['level'] ) . '">';
 				echo '<td colspan="' . (int) $colspan . '" class="plugin-update colspanchange">';
-				echo '<div class="update-message notice inline notice-warning notice-alt"><p>';
-				echo '<span class="' . esc_attr( $warning['class'] ) . '">' . esc_html( $warning['message'] ) . '</span>';
+				echo '<div class="update-message notice inline ' . $notice_class . ' notice-alt"><p>';
+				echo '<span class="dashicons dashicons-' . esc_attr( $warning['icon'] ) . ' pr-warning-icon"></span> ';
+				echo esc_html( $warning['message'] );
 				echo '</p></div>';
 				echo '</td>';
 				echo '</tr>';
