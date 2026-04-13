@@ -144,7 +144,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			echo '<tbody>';
 
 			foreach ( $plugins as $key => $plugin ) {
-				$slug      = $this->get_plugin_slug( $key );
+				$slug      = $this->get_plugin_slug( $key, $plugin );
 				$cache_key = $this->create_cache_key( $slug );
 				$cache     = get_site_transient( $cache_key );
 				if ( $cache ) {
@@ -204,7 +204,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			$plugins = get_plugins();
 			$slugs   = array();
 			foreach ( $plugins as $key => $plugin ) {
-				$slugs[] = $this->get_plugin_slug( $key );
+				$slugs[] = $this->get_plugin_slug( $key, $plugin );
 			}
 			return $slugs;
 		}
@@ -213,14 +213,20 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		/**
 		 * Convert a plugin's file path into its slug.
 		 *
-		 * @param string $file  Plugin file path.
+		 * @param string $file         Plugin file path.
+		 * @param array  $plugin_data  Optional plugin header data from get_plugins().
 		 */
-		private function get_plugin_slug( $file ) {
+		private function get_plugin_slug( $file, $plugin_data = array() ) {
 			if ( strpos( $file, '/' ) !== false ) {
 				$parts = explode( '/', $file );
-			} else {
-				$parts = explode( '.', $file );
+				return sanitize_title( $parts[0] );
 			}
+			// Single-file plugin (e.g. hello.php): prefer TextDomain as slug,
+			// since the filename alone often doesn't match the wp.org slug.
+			if ( ! empty( $plugin_data['TextDomain'] ) ) {
+				return sanitize_title( $plugin_data['TextDomain'] );
+			}
+			$parts = explode( '.', $file );
 			return sanitize_title( $parts[0] );
 		}
 
@@ -293,7 +299,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 					// Get the locally available info, and add it to the report.
 					foreach ( $plugins as $key => $plugin ) {
-						if ( $this->get_plugin_slug( $key ) === $slug ) {
+						if ( $this->get_plugin_slug( $key, $plugin ) === $slug ) {
 
 							// Translate plugin data.
 							$textdomain = $plugin['TextDomain'];
@@ -742,7 +748,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			$plugins = get_plugins();
 			// Loop through the plugins array, and delete cache items.
 			foreach ( $plugins as $key => $plugin ) {
-				$slug = $this->get_plugin_slug( $key );
+				$slug = $this->get_plugin_slug( $key, $plugin );
 				$this->clear_cache_item( $slug );
 			}
 		}
@@ -765,9 +771,11 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		public function upgrade_delete_cache_items( $upgrader, $data ) {
 			// Check if plugins have been upgraded by WP.
 			if ( isset( $data ) && isset( $data['plugins'] ) && is_array( $data['plugins'] ) ) {
+				$plugins = get_plugins();
 				// Loop through the plugins, and delete the associated cache items.
 				foreach ( $data['plugins'] as $key => $value ) {
-					$slug = $this->get_plugin_slug( $value );
+					$plugin_data = isset( $plugins[ $value ] ) ? $plugins[ $value ] : array();
+					$slug        = $this->get_plugin_slug( $value, $plugin_data );
 					$this->clear_cache_item( $slug );
 				}
 			}
