@@ -351,7 +351,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 					// Add the repo info to the report.
 					if ( isset( $returned_object ) ) {
-						if ( ! is_wp_error( $returned_object ) ) {
+						if ( ! is_wp_error( $returned_object ) && isset( $returned_object->version ) ) {
 							$report['repo_info'] = $returned_object;
 							// Cache the report.
 							set_site_transient( $cache_key, $report, self::CACHE_LIFETIME );
@@ -493,7 +493,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				}
 
 				// Installed / available version.
-				if ( isset( $report['repo_info'] ) ) {
+				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->version ) ) {
 					$css_class = $this->get_version_risk_classname( $report['local_info']['Version'], $report['repo_info']->version );
 					$html     .= '<td class="' . $css_class . '">';
 					$html     .= esc_html( $report['local_info']['Version'] );
