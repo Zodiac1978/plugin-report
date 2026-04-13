@@ -562,7 +562,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			if ( isset( $cache['repo_error_code'] ) && 'plugins_api_failed' === $cache['repo_error_code'] && isset( $cache['exists_in_svn'] ) && true === $cache['exists_in_svn'] ) {
 				$warnings[] = array(
 					'level'   => 'error',
-					'icon'    => 'dismiss',
 					'message' => __( 'This plugin has been closed on wordpress.org and will no longer receive updates.', 'plugin-report' ),
 				);
 			}
@@ -585,7 +584,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				if ( version_compare( $this->get_major_version( $cache['repo_info']->tested ), $this->get_major_version( $wp_latest ), '<' ) ) {
 					$warnings[] = array(
 						'level'   => 'warning',
-						'icon'    => 'info',
 						/* translators: %s: WordPress version number */
 						'message' => sprintf( __( 'This plugin has not been tested with the current major version of WordPress (%s).', 'plugin-report' ), $this->get_major_version( $wp_latest ) ),
 					);
@@ -606,9 +604,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				echo '<tr class="plugin-update-tr pr-warning-row pr-warning-' . esc_attr( $warning['level'] ) . '">';
 				echo '<td colspan="' . (int) $colspan . '" class="plugin-update colspanchange">';
 				echo '<div class="update-message notice inline ' . $notice_class . ' notice-alt"><p>';
-				if ( ! empty( $warning['icon'] ) ) {
-					echo '<span class="dashicons dashicons-' . esc_attr( $warning['icon'] ) . ' pr-warning-icon"></span> ';
-				}
 				echo esc_html( $warning['message'] );
 				echo '</p></div>';
 				echo '</td>';
