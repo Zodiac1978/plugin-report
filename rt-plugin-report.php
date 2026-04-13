@@ -823,7 +823,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 	 *
 	 *     if ( function_exists( 'plugin_report_get_data' ) ) {
 	 *         $report = plugin_report_get_data( 'akismet' );
-	 *         if ( $report && isset( $report['repo_info'] ) ) {
+	 *         if ( isset( $report['repo_info'] ) ) {
 	 *             echo $report['repo_info']->tested;
 	 *         }
 	 *     }
