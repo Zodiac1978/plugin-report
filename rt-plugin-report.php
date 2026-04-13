@@ -574,7 +574,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				if ( $days_since > 730 ) {
 					$warnings[] = array(
 						'level'   => 'warning',
-						'icon'    => 'warning',
 						'message' => __( 'This plugin has not been updated in over 2 years.', 'plugin-report' ),
 					);
 				}
@@ -607,7 +606,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				echo '<tr class="plugin-update-tr pr-warning-row pr-warning-' . esc_attr( $warning['level'] ) . '">';
 				echo '<td colspan="' . (int) $colspan . '" class="plugin-update colspanchange">';
 				echo '<div class="update-message notice inline ' . $notice_class . ' notice-alt"><p>';
-				echo '<span class="dashicons dashicons-' . esc_attr( $warning['icon'] ) . ' pr-warning-icon"></span> ';
+				if ( ! empty( $warning['icon'] ) ) {
+					echo '<span class="dashicons dashicons-' . esc_attr( $warning['icon'] ) . ' pr-warning-icon"></span> ';
+				}
 				echo esc_html( $warning['message'] );
 				echo '</p></div>';
 				echo '</td>';
