@@ -273,6 +273,30 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 
 		/**
+		 * Check if a plugin slug is on the ignore list.
+		 *
+		 * The ignore list is read from the PLUGIN_REPORT_IGNORE constant, which
+		 * can be defined in wp-config.php as a comma-separated string or an array.
+		 *
+		 * @param string $slug Plugin slug.
+		 *
+		 * @return bool True if the plugin should be ignored.
+		 */
+		private function is_ignored( $slug ) {
+			if ( ! defined( 'PLUGIN_REPORT_IGNORE' ) ) {
+				return false;
+			}
+
+			$ignore_list = PLUGIN_REPORT_IGNORE;
+			if ( is_string( $ignore_list ) ) {
+				$ignore_list = array_map( 'trim', explode( ',', $ignore_list ) );
+			}
+
+			return is_array( $ignore_list ) && in_array( $slug, $ignore_list, true );
+		}
+
+
+		/**
 		 * Gather all the info we can get about a plugin.
 		 * Uses transient caching to avoid doing repo API calls on every page visit.
 		 *
@@ -326,27 +350,33 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 						}
 					}
 
-					// Use the wordpress.org repository API to get detailed information.
-					$args = array(
-						'slug'   => $slug,
-						'fields' => array(
-							'description'   => false,
-							'sections'      => false,
-							'tags'          => false,
-							'version'       => true,
-							'tested'        => true,
-							'requires'      => true,
-							'requires_php'  => true,
-							'compatibility' => true,
-							'author'        => true,
-						),
-					);
+					// Skip API lookups for ignored plugins.
+					if ( $this->is_ignored( $slug ) ) {
+						$report['ignored'] = true;
+						set_site_transient( $cache_key, $report, self::CACHE_LIFETIME_NOREPO );
+					} else {
+						// Use the wordpress.org repository API to get detailed information.
+						$args = array(
+							'slug'   => $slug,
+							'fields' => array(
+								'description'   => false,
+								'sections'      => false,
+								'tags'          => false,
+								'version'       => true,
+								'tested'        => true,
+								'requires'      => true,
+								'requires_php'  => true,
+								'compatibility' => true,
+								'author'        => true,
+							),
+						);
 
-					// Check wordpress.org only if "Update URI" plugin header is not set or set to wordpress.org.
-					$parsed_repo_url = wp_parse_url( $report['local_info']['UpdateURI'] );
-					$repo_host       = isset( $parsed_repo_url['host'] ) ? $parsed_repo_url['host'] : null;
-					if ( empty( $repo_host ) || strtolower( $repo_host ) === 'w.org' || strtolower( $repo_host ) === 'wordpress.org' ) {
-						$returned_object = plugins_api( 'plugin_information', $args );
+						// Check wordpress.org only if "Update URI" plugin header is not set or set to wordpress.org.
+						$parsed_repo_url = wp_parse_url( $report['local_info']['UpdateURI'] );
+						$repo_host       = isset( $parsed_repo_url['host'] ) ? $parsed_repo_url['host'] : null;
+						if ( empty( $repo_host ) || strtolower( $repo_host ) === 'w.org' || strtolower( $repo_host ) === 'wordpress.org' ) {
+							$returned_object = plugins_api( 'plugin_information', $args );
+						}
 					}
 
 					// Add the repo info to the report.
@@ -438,7 +468,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				}
 
 				// Repository.
-				if ( isset( $report['local_info']['UpdateURI'] ) ) {
+				if ( isset( $report['ignored'] ) && true === $report['ignored'] ) {
+					$html .= '<td>' . esc_html__( 'Ignored (via config)', 'plugin-report' ) . '</td>';
+				} elseif ( isset( $report['local_info']['UpdateURI'] ) ) {
 					// Parse the UpdateURI's value to get the host.
 					$parsed_repo_url = wp_parse_url( $report['local_info']['UpdateURI'] );
 					// If the URI is valid, extract the host, otherwise we'll use the header value.
