@@ -16,6 +16,23 @@ td.pr-risk-medium {
 	font-weight: bold;
 }
 
+/* Inline risk classes for plugin list table columns */
+
+span.pr-risk-low {
+	color: #007017;
+	font-weight: 600;
+}
+
+span.pr-risk-high {
+	color: #b32d2e;
+	font-weight: 600;
+}
+
+span.pr-risk-medium {
+	color: #826200;
+	font-weight: 600;
+}
+
 /* additional info in table cells */
 
 span.pr-additional-info {

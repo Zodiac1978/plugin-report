@@ -60,6 +60,14 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			add_action( 'wp_ajax_rt_get_plugin_info', array( $this, 'get_plugin_info' ) );
 			// Hook into the WP Upgrader to selectively delete cache items.
 			add_action( 'upgrader_process_complete', array( $this, 'upgrade_delete_cache_items' ), 10, 2 );
+			// Enrich the native plugin list table with extra columns and warnings.
+			add_filter( 'manage_plugins_columns', array( $this, 'add_plugin_list_columns' ) );
+			add_action( 'manage_plugins_custom_column', array( $this, 'render_plugin_list_column' ), 10, 3 );
+			add_action( 'after_plugin_row', array( $this, 'render_plugin_row_warning' ), 10, 3 );
+			if ( is_multisite() ) {
+				add_filter( 'manage_plugins-network_columns', array( $this, 'add_plugin_list_columns' ) );
+				add_action( 'manage_plugins-network_custom_column', array( $this, 'render_plugin_list_column' ), 10, 3 );
+			}
 		}
 
 
@@ -172,6 +180,11 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 * @param string $hook  Screen hook.
 		 */
 		public function enqueue_assets( $hook ) {
+			// Load CSS on the native plugin list page too.
+			if ( 'plugins.php' === $hook ) {
+				wp_enqueue_style( 'plugin-report-css', plugin_dir_url( __FILE__ ) . 'css/plugin-report.css', array(), self::PLUGIN_VERSION );
+				return;
+			}
 			// Check if we're on the right screen.
 			if ( 'plugins_page_plugin_report' !== $hook ) {
 				return;
@@ -403,6 +416,153 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			}
 			// In all other cases, assume the plugin was not found.
 			return false;
+		}
+
+
+		/**
+		 * Add custom columns to the native plugin list table.
+		 *
+		 * @param array $columns Existing columns.
+		 *
+		 * @return array Modified columns.
+		 */
+		public function add_plugin_list_columns( $columns ) {
+			$columns['pr_repo_status']  = __( 'Repository', 'plugin-report' );
+			$columns['pr_last_updated'] = __( 'Last Update', 'plugin-report' );
+			$columns['pr_tested']       = __( 'Tested up to', 'plugin-report' );
+			return $columns;
+		}
+
+
+		/**
+		 * Render custom column content in the native plugin list table.
+		 *
+		 * @param string $column_name Column identifier.
+		 * @param string $plugin_file Plugin file path relative to plugins dir.
+		 * @param array  $plugin_data Plugin header data.
+		 */
+		public function render_plugin_list_column( $column_name, $plugin_file, $plugin_data ) {
+			$slug  = $this->get_plugin_slug( $plugin_file );
+			$cache = get_site_transient( $this->create_cache_key( $slug ) );
+
+			if ( empty( $cache ) ) {
+				echo '—';
+				return;
+			}
+
+			global $wp_version;
+			$wp_latest = $this->check_core_updates();
+
+			switch ( $column_name ) {
+				case 'pr_repo_status':
+					if ( isset( $cache['repo_error_code'] ) && 'plugins_api_failed' === $cache['repo_error_code'] ) {
+						if ( isset( $cache['exists_in_svn'] ) && true === $cache['exists_in_svn'] ) {
+							echo '<span class="' . self::CSS_CLASS_HIGH . '">' . esc_html__( 'Closed', 'plugin-report' ) . '</span>';
+						} else {
+							echo '<span class="' . self::CSS_CLASS_HIGH . '">' . esc_html__( 'Not found', 'plugin-report' ) . '</span>';
+						}
+					} elseif ( isset( $cache['repo_info'] ) ) {
+						echo '<span class="' . self::CSS_CLASS_LOW . '">wordpress.org</span>';
+					} else {
+						$parsed = wp_parse_url( isset( $cache['local_info']['UpdateURI'] ) ? $cache['local_info']['UpdateURI'] : '' );
+						if ( isset( $parsed['host'] ) && ! empty( $parsed['host'] ) ) {
+							echo '<span class="' . self::CSS_CLASS_MED . '">' . esc_html( $parsed['host'] ) . '</span>';
+						} else {
+							echo '—';
+						}
+					}
+					break;
+
+				case 'pr_last_updated':
+					if ( isset( $cache['repo_info'] ) && isset( $cache['repo_info']->last_updated ) ) {
+						$time_update = new DateTime( $cache['repo_info']->last_updated );
+						$time_diff   = human_time_diff( $time_update->getTimestamp(), current_time( 'timestamp' ) );
+						$css_class   = $this->get_timediff_risk_classname( current_time( 'timestamp' ) - $time_update->getTimestamp() );
+						echo '<span class="' . $css_class . '">' . esc_html( $time_diff ) . '</span>';
+					} else {
+						echo '—';
+					}
+					break;
+
+				case 'pr_tested':
+					if ( isset( $cache['repo_info'] ) && isset( $cache['repo_info']->tested ) && ! empty( $cache['repo_info']->tested ) ) {
+						$css_class = $this->get_version_risk_classname( $cache['repo_info']->tested, $wp_latest, true );
+						echo '<span class="' . $css_class . '">' . esc_html( $cache['repo_info']->tested ) . '</span>';
+					} else {
+						echo '—';
+					}
+					break;
+			}
+		}
+
+
+		/**
+		 * Show inline warning rows beneath problematic plugins in the native list.
+		 *
+		 * @param string $plugin_file Plugin file path relative to plugins dir.
+		 * @param array  $plugin_data Plugin header data.
+		 * @param string $status      Plugin status (active, inactive, etc.).
+		 */
+		public function render_plugin_row_warning( $plugin_file, $plugin_data, $status ) {
+			$slug  = $this->get_plugin_slug( $plugin_file );
+			$cache = get_site_transient( $this->create_cache_key( $slug ) );
+
+			if ( empty( $cache ) ) {
+				return;
+			}
+
+			$warnings = array();
+
+			// Closed on wp.org.
+			if ( isset( $cache['repo_error_code'] ) && 'plugins_api_failed' === $cache['repo_error_code'] && isset( $cache['exists_in_svn'] ) && true === $cache['exists_in_svn'] ) {
+				$warnings[] = array(
+					'class'   => self::CSS_CLASS_HIGH,
+					'message' => __( 'This plugin has been closed on wordpress.org and will no longer receive updates.', 'plugin-report' ),
+				);
+			}
+
+			// Not updated in over 2 years.
+			if ( isset( $cache['repo_info'] ) && isset( $cache['repo_info']->last_updated ) ) {
+				$time_update = new DateTime( $cache['repo_info']->last_updated );
+				$days_since  = ( current_time( 'timestamp' ) - $time_update->getTimestamp() ) / DAY_IN_SECONDS;
+				if ( $days_since > 730 ) {
+					$warnings[] = array(
+						'class'   => self::CSS_CLASS_MED,
+						'message' => __( 'This plugin has not been updated in over 2 years.', 'plugin-report' ),
+					);
+				}
+			}
+
+			// Not tested with current WP major version.
+			if ( isset( $cache['repo_info'] ) && isset( $cache['repo_info']->tested ) && ! empty( $cache['repo_info']->tested ) ) {
+				$wp_latest = $this->check_core_updates();
+				if ( version_compare( $this->get_major_version( $cache['repo_info']->tested ), $this->get_major_version( $wp_latest ), '<' ) ) {
+					$warnings[] = array(
+						'class'   => self::CSS_CLASS_MED,
+						/* translators: %s: WordPress version number */
+						'message' => sprintf( __( 'This plugin has not been tested with the current major version of WordPress (%s).', 'plugin-report' ), $this->get_major_version( $wp_latest ) ),
+					);
+				}
+			}
+
+			if ( empty( $warnings ) ) {
+				return;
+			}
+
+			// Count visible columns to span the full width.
+			$screen  = get_current_screen();
+			$columns = get_column_headers( $screen );
+			$colspan = count( $columns ) + 1; // +1 for the checkbox column.
+
+			foreach ( $warnings as $warning ) {
+				echo '<tr class="plugin-update-tr pr-warning-row">';
+				echo '<td colspan="' . (int) $colspan . '" class="plugin-update colspanchange">';
+				echo '<div class="update-message notice inline notice-warning notice-alt"><p>';
+				echo '<span class="' . esc_attr( $warning['class'] ) . '">' . esc_html( $warning['message'] ) . '</span>';
+				echo '</p></div>';
+				echo '</td>';
+				echo '</tr>';
+			}
 		}
 
 
