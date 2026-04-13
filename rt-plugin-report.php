@@ -68,6 +68,11 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				add_filter( 'manage_plugins-network_columns', array( $this, 'add_plugin_list_columns' ) );
 				add_action( 'manage_plugins-network_custom_column', array( $this, 'render_plugin_list_column' ), 10, 3 );
 			}
+			// Populate cache on the native plugins page so columns have data.
+			add_action( 'load-plugins.php', array( $this, 'populate_cache_on_plugins_page' ) );
+			// Add a cache-clear link to the native plugins page.
+			add_filter( 'views_plugins', array( $this, 'add_plugins_page_cache_link' ) );
+			add_filter( 'views_plugins-network', array( $this, 'add_plugins_page_cache_link' ) );
 		}
 
 
@@ -207,6 +212,46 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			wp_localize_script( 'plugin-report-js', 'plugin_report_vars', $vars );
 			// Enqueue admin CSS file.
 			wp_enqueue_style( 'plugin-report-css', plugin_dir_url( __FILE__ ) . 'css/plugin-report.css', array(), self::PLUGIN_VERSION );
+		}
+
+
+		/**
+		 * Ensure all plugins have cached reports when viewing the native plugins page.
+		 * Also handles the cache-clear action for this page.
+		 */
+		public function populate_cache_on_plugins_page() {
+			// Check if get_plugins() function exists.
+			if ( ! function_exists( 'plugins_api' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+			}
+
+			// Handle cache clear request.
+			if ( isset( $_GET['pr_clear_cache'] ) && isset( $_GET['_wpnonce'] ) ) {
+				if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'pr_clear_cache' ) ) {
+					$this->clear_cache();
+				}
+			}
+
+			// Populate cache for any plugins that don't have it yet.
+			$plugins = get_plugins();
+			foreach ( $plugins as $key => $plugin ) {
+				$slug = $this->get_plugin_slug( $key );
+				$this->assemble_plugin_report( $slug );
+			}
+		}
+
+
+		/**
+		 * Add a "Refresh report data" link to the plugin list views.
+		 *
+		 * @param array $views Existing view links.
+		 *
+		 * @return array Modified view links.
+		 */
+		public function add_plugins_page_cache_link( $views ) {
+			$url = wp_nonce_url( add_query_arg( 'pr_clear_cache', '1' ), 'pr_clear_cache' );
+			$views['pr_refresh'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Refresh report data', 'plugin-report' ) . '</a>';
+			return $views;
 		}
 
 
