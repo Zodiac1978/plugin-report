@@ -537,7 +537,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					$time_update = new DateTime( $report['repo_info']->last_updated );
 					$time_diff   = human_time_diff( $time_update->getTimestamp(), current_time( 'timestamp' ) );
 					$css_class   = $this->get_timediff_risk_classname( current_time( 'timestamp' ) - $time_update->getTimestamp() );
-					$html       .= '<td class="' . $css_class . '" data-sort="' . esc_attr( $time_update->getTimestamp() ) . '">' . esc_html( $time_diff ) . '</td>';
+					$html       .= '<td class="' . $css_class . '" data-sort="' . esc_attr( (string) $time_update->getTimestamp() ) . '">' . esc_html( $time_diff ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
 				}
