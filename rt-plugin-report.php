@@ -351,10 +351,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 					// Add the repo info to the report.
 					if ( isset( $returned_object ) ) {
-						if ( ! is_wp_error( $returned_object ) && isset( $returned_object->version ) ) {
-							$report['repo_info'] = $returned_object;
-							// Cache the report.
-							set_site_transient( $cache_key, $report, self::CACHE_LIFETIME );
+						if ( ! is_wp_error( $returned_object ) ) {
+							if ( isset( $returned_object->version ) ) {
+								$report['repo_info'] = $returned_object;
+								// Cache the report.
+								set_site_transient( $cache_key, $report, self::CACHE_LIFETIME );
+							}
 						} else {
 							// Store the error code and message in the report.
 							$report['repo_error_code']    = $returned_object->get_error_code();
