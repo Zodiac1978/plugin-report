@@ -18,7 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
+define( 'RT_PLUGIN_REPORT_FILE', __FILE__ );
+
+require_once __DIR__ . '/includes/class-health-check.php';
+
+if ( ! class_exists( 'RT_Plugin_Report' ) ) {
 
 	/**
 	 * Plugin Report main class.
@@ -60,6 +64,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			add_action( 'wp_ajax_rt_get_plugin_info', array( $this, 'get_plugin_info' ) );
 			// Hook into the WP Upgrader to selectively delete cache items.
 			add_action( 'upgrader_process_complete', array( $this, 'upgrade_delete_cache_items' ), 10, 2 );
+			// Initialize periodic health check.
+			RT_Plugin_Report_Health_Check::init( $this );
 		}
 
 
@@ -215,7 +221,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 *
 		 * @param string $file  Plugin file path.
 		 */
-		private function get_plugin_slug( $file ) {
+		public function get_plugin_slug( $file ) {
 			if ( strpos( $file, '/' ) !== false ) {
 				$parts = explode( '/', $file );
 			} else {
@@ -278,7 +284,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 *
 		 * @param string $slug   Plugin slug.
 		 */
-		private function assemble_plugin_report( $slug ) {
+		public function assemble_plugin_report( $slug ) {
 			if ( ! empty( $slug ) ) {
 				$report       = array();
 				$cache_key    = $this->create_cache_key( $slug );
@@ -661,7 +667,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 * Get the latest available WordPress version using WP core functions
 		 * This way, we don't need to do any API calls. WP check this periodically anyway.
 		 */
-		private function check_core_updates() {
+		public function check_core_updates() {
 			global $wp_version;
 			$update = get_preferred_from_update_core();
 			// Bail out of no valid response, or false.
@@ -745,6 +751,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$slug = $this->get_plugin_slug( $key );
 				$this->clear_cache_item( $slug );
 			}
+			// Signal that cached plugin data has changed.
+			do_action( 'plugin_report_cache_cleared' );
 		}
 
 
@@ -770,6 +778,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					$slug = $this->get_plugin_slug( $value );
 					$this->clear_cache_item( $slug );
 				}
+				// Signal that cached plugin data has changed.
+				do_action( 'plugin_report_cache_cleared' );
 			}
 		}
 
