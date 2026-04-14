@@ -322,6 +322,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 							// Change any whitespace to default space.
 							$report['local_info']['Name'] = preg_replace( '/\s+/u', ' ', $report['local_info']['Name'] );
 
+							// Parse the local readme.txt for the "Tested up to" value.
+							$report['local_tested'] = $this->get_local_tested_up_to( $key );
+
 							break;
 						}
 					}
@@ -403,6 +406,45 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			}
 			// In all other cases, assume the plugin was not found.
 			return false;
+		}
+
+
+		/**
+		 * Parse the "Tested up to" value from a plugin's local readme.txt file.
+		 *
+		 * @param string $plugin_file Relative plugin file path (e.g. "plugin-name/plugin-name.php").
+		 *
+		 * @return string|null The "Tested up to" version string, or null if not found.
+		 */
+		private function get_local_tested_up_to( $plugin_file ) {
+			$plugin_dir = WP_PLUGIN_DIR . '/' . dirname( $plugin_file );
+
+			// Try readme.txt first, then readme.md.
+			$readme_path = null;
+			foreach ( array( 'readme.txt', 'README.txt', 'readme.md', 'README.md' ) as $filename ) {
+				if ( file_exists( $plugin_dir . '/' . $filename ) ) {
+					$readme_path = $plugin_dir . '/' . $filename;
+					break;
+				}
+			}
+
+			if ( ! $readme_path ) {
+				return null;
+			}
+
+			// Read only the first 8 KB — headers are always at the top.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$content = file_get_contents( $readme_path, false, null, 0, 8192 );
+			if ( false === $content ) {
+				return null;
+			}
+
+			// Match "Tested up to: <version>" (case-insensitive).
+			if ( preg_match( '/^[ \t]*tested up to[ \t]*:[ \t]*(\d[^\r\n]*)/mi', $content, $matches ) ) {
+				return trim( $matches[1] );
+			}
+
+			return null;
 		}
 
 
@@ -546,6 +588,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->tested ) && ! empty( $report['repo_info']->tested ) ) {
 					$css_class = $this->get_version_risk_classname( $report['repo_info']->tested, $wp_latest, true );
 					$html     .= '<td class="' . $css_class . '">' . esc_html( $report['repo_info']->tested ) . '</td>';
+				} elseif ( isset( $report['local_tested'] ) && ! empty( $report['local_tested'] ) ) {
+					$css_class = $this->get_version_risk_classname( $report['local_tested'], $wp_latest, true );
+					$html     .= '<td class="' . $css_class . '">' . esc_html( $report['local_tested'] ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
 				}
