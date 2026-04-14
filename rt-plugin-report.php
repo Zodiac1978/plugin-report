@@ -18,7 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
+define( 'RT_PLUGIN_REPORT_FILE', __FILE__ );
+
+require_once __DIR__ . '/includes/class-health-check.php';
+
+if ( ! class_exists( 'RT_Plugin_Report' ) ) {
 
 	/**
 	 * Plugin Report main class.
@@ -60,11 +64,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			add_action( 'wp_ajax_rt_get_plugin_info', array( $this, 'get_plugin_info' ) );
 			// Hook into the WP Upgrader to selectively delete cache items.
 			add_action( 'upgrader_process_complete', array( $this, 'upgrade_delete_cache_items' ), 10, 2 );
-			// Periodic health check for abandoned/problematic plugins.
-			add_action( 'plugin_report_health_check', array( $this, 'run_health_check' ) );
-			// Reset notification flag when plugins change.
-			add_action( 'activated_plugin', array( $this, 'clear_notification_flag' ) );
-			add_action( 'deactivated_plugin', array( $this, 'clear_notification_flag' ) );
+			// Initialize periodic health check.
+			RT_Plugin_Report_Health_Check::init( $this );
 		}
 
 
@@ -220,7 +221,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 *
 		 * @param string $file  Plugin file path.
 		 */
-		private function get_plugin_slug( $file ) {
+		public function get_plugin_slug( $file ) {
 			if ( strpos( $file, '/' ) !== false ) {
 				$parts = explode( '/', $file );
 			} else {
@@ -283,7 +284,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 *
 		 * @param string $slug   Plugin slug.
 		 */
-		private function assemble_plugin_report( $slug ) {
+		public function assemble_plugin_report( $slug ) {
 			if ( ! empty( $slug ) ) {
 				$report       = array();
 				$cache_key    = $this->create_cache_key( $slug );
@@ -666,7 +667,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 * Get the latest available WordPress version using WP core functions
 		 * This way, we don't need to do any API calls. WP check this periodically anyway.
 		 */
-		private function check_core_updates() {
+		public function check_core_updates() {
 			global $wp_version;
 			$update = get_preferred_from_update_core();
 			// Bail out of no valid response, or false.
@@ -750,8 +751,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$slug = $this->get_plugin_slug( $key );
 				$this->clear_cache_item( $slug );
 			}
-			// Reset notification flag so the next health check re-evaluates.
-			$this->clear_notification_flag();
+			// Signal that cached plugin data has changed.
+			do_action( 'plugin_report_cache_cleared' );
 		}
 
 
@@ -777,178 +778,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					$slug = $this->get_plugin_slug( $value );
 					$this->clear_cache_item( $slug );
 				}
-				// Reset notification flag so the next health check re-evaluates.
-				$this->clear_notification_flag();
+				// Signal that cached plugin data has changed.
+				do_action( 'plugin_report_cache_cleared' );
 			}
-		}
-
-		/**
-		 * Run the periodic health check for abandoned/problematic plugins.
-		 * Sends an email to the site admin when issues are found.
-		 */
-		public function run_health_check() {
-			// Ensure plugins_api is available.
-			if ( ! function_exists( 'plugins_api' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-			}
-
-			$plugins    = get_plugins();
-			$wp_latest  = $this->check_core_updates();
-			$closed     = array();
-			$stale      = array();
-			$untested   = array();
-
-			foreach ( $plugins as $key => $plugin ) {
-				$slug   = $this->get_plugin_slug( $key );
-				$report = $this->assemble_plugin_report( $slug );
-
-				if ( ! $report ) {
-					continue;
-				}
-
-				$name = isset( $report['local_info']['Name'] ) ? $report['local_info']['Name'] : $slug;
-
-				// Closed on wp.org.
-				if ( isset( $report['repo_error_code'] ) && 'plugins_api_failed' === $report['repo_error_code'] && isset( $report['exists_in_svn'] ) && true === $report['exists_in_svn'] ) {
-					$closed[] = $name;
-				}
-
-				if ( isset( $report['repo_info'] ) ) {
-					// Not updated in over 2 years.
-					if ( isset( $report['repo_info']->last_updated ) ) {
-						$time_update = new DateTime( $report['repo_info']->last_updated );
-						$days_since  = ( current_time( 'timestamp' ) - $time_update->getTimestamp() ) / DAY_IN_SECONDS;
-						if ( $days_since > 730 ) {
-							$stale[] = $name;
-						}
-					}
-
-					// Not tested with current WP major version.
-					if ( isset( $report['repo_info']->tested ) && ! empty( $report['repo_info']->tested ) ) {
-						if ( version_compare( $this->get_major_version( $report['repo_info']->tested ), $this->get_major_version( $wp_latest ), '<' ) ) {
-							$untested[] = $name;
-						}
-					}
-				}
-			}
-
-			// Nothing to report.
-			if ( empty( $closed ) && empty( $stale ) && empty( $untested ) ) {
-				delete_option( 'plugin_report_notified' );
-				return;
-			}
-
-			// Check if we already notified about this exact set of problems.
-			$current_hash = md5( wp_json_encode( compact( 'closed', 'stale', 'untested' ) ) );
-			$notified     = get_option( 'plugin_report_notified' );
-
-			if ( $notified === $current_hash ) {
-				return;
-			}
-
-			$this->send_health_check_email( $closed, $stale, $untested );
-			update_option( 'plugin_report_notified', $current_hash, false );
-		}
-
-
-		/**
-		 * Send the health check summary email.
-		 *
-		 * @param array $closed   Plugin names that are closed on wp.org.
-		 * @param array $stale    Plugin names not updated in 2+ years.
-		 * @param array $untested Plugin names not tested with current WP.
-		 */
-		private function send_health_check_email( $closed, $stale, $untested ) {
-			$total = count( $closed ) + count( $stale ) + count( $untested );
-			$body  = array();
-
-			$body[] = __( 'Plugin Report has detected the following issues with your installed plugins:', 'plugin-report' );
-			$body[] = '';
-
-			if ( ! empty( $closed ) ) {
-				$body[] = __( 'Closed on wordpress.org (no longer receiving updates):', 'plugin-report' );
-				foreach ( $closed as $name ) {
-					$body[] = '- ' . $name;
-				}
-				$body[] = '';
-			}
-
-			if ( ! empty( $stale ) ) {
-				$body[] = __( 'Not updated in over 2 years:', 'plugin-report' );
-				foreach ( $stale as $name ) {
-					$body[] = '- ' . $name;
-				}
-				$body[] = '';
-			}
-
-			if ( ! empty( $untested ) ) {
-				$body[] = __( 'Not tested with the current major WordPress version:', 'plugin-report' );
-				foreach ( $untested as $name ) {
-					$body[] = '- ' . $name;
-				}
-				$body[] = '';
-			}
-
-			if ( is_multisite() ) {
-				$report_url = network_admin_url( 'plugins.php?page=plugin_report' );
-			} else {
-				$report_url = admin_url( 'plugins.php?page=plugin_report' );
-			}
-
-			$body[] = sprintf(
-				/* translators: %s: URL to the Plugin Report page */
-				__( 'View the full report: %s', 'plugin-report' ),
-				$report_url
-			);
-
-			if ( '' !== get_option( 'blogname' ) ) {
-				$site_title = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-			} else {
-				$site_title = wp_parse_url( home_url(), PHP_URL_HOST );
-			}
-
-			$subject = sprintf(
-				/* translators: 1: Site title, 2: Number of plugins with issues */
-				__( '[%1$s] Plugin Report: %2$d plugin(s) need attention', 'plugin-report' ),
-				$site_title,
-				$total
-			);
-
-			$email = array(
-				'to'      => get_site_option( 'admin_email' ),
-				'subject' => $subject,
-				'body'    => implode( "\n", $body ),
-				'headers' => '',
-			);
-
-			/**
-			 * Filters the health check notification email.
-			 *
-			 * @since 2.3.0
-			 *
-			 * @param array $email {
-			 *     Array of email arguments passed to wp_mail().
-			 *
-			 *     @type string $to      The email recipient.
-			 *     @type string $subject The email subject.
-			 *     @type string $body    The email body.
-			 *     @type string $headers Email headers.
-			 * }
-			 * @param array $closed   Plugin names closed on wp.org.
-			 * @param array $stale    Plugin names not updated in 2+ years.
-			 * @param array $untested Plugin names not tested with current WP.
-			 */
-			$email = apply_filters( 'plugin_report_health_check_email', $email, $closed, $stale, $untested );
-
-			wp_mail( $email['to'], wp_specialchars_decode( $email['subject'] ), $email['body'], $email['headers'] );
-		}
-
-
-		/**
-		 * Clear the notification flag so the next health check re-evaluates.
-		 */
-		public function clear_notification_flag() {
-			delete_option( 'plugin_report_notified' );
 		}
 
 	}
@@ -957,14 +789,4 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 	$plugin_report_instance = new RT_Plugin_Report();
 	$plugin_report_instance->init();
 
-	// Schedule/unschedule the health check cron event on activation/deactivation.
-	register_activation_hook( __FILE__, function () {
-		if ( ! wp_next_scheduled( 'plugin_report_health_check' ) ) {
-			wp_schedule_event( time(), 'daily', 'plugin_report_health_check' );
-		}
-	} );
-	register_deactivation_hook( __FILE__, function () {
-		wp_clear_scheduled_hook( 'plugin_report_health_check' );
-		delete_option( 'plugin_report_notified' );
-	} );
 }
