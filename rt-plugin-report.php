@@ -36,6 +36,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		const CACHE_LIFETIME        = DAY_IN_SECONDS;
 		const CACHE_LIFETIME_NOREPO = WEEK_IN_SECONDS;
 
+		/** @var string Cache-clear URL for the plugins page. */
+		private $pr_clear_cache_url = '';
+
+		/** @var string Cache-clear button label for the plugins page. */
+		private $pr_clear_cache_label = '';
+
 		/**
 		 * Constructor
 		 */
