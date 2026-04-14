@@ -190,6 +190,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				'export_btn'        => __( 'Export .csv file', 'plugin-report' ),
 				'plugin_url_header' => __( 'Plugin URL', 'plugin-report' ),
 				'author_url_header' => __( 'Author URL', 'plugin-report' ),
+				'ajax_error'        => __( 'Error fetching plugin info.', 'plugin-report' ),
+				'cols_per_row'      => self::COLS_PER_ROW,
 			);
 			wp_localize_script( 'plugin-report-js', 'plugin_report_vars', $vars );
 			// Enqueue admin CSS file.

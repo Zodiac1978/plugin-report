@@ -54,13 +54,26 @@ jQuery(document).ready( function( $ ){
 		};
 
 		jQuery.post( ajaxurl, data, function(response) {
-			// parse the response
-			const obj = JSON.parse(response);
-			// replace the temporary table row with the new data
-			$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith( obj.html );
-			// on to the next...
+			try {
+				const obj = JSON.parse(response);
+				$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith( obj.html );
+			} catch (e) {
+				rtpr_replace_with_error( slug );
+			}
+			rtpr_process_next_plugin();
+		}).fail( function() {
+			rtpr_replace_with_error( slug );
 			rtpr_process_next_plugin();
 		});
+	}
+
+
+	function rtpr_replace_with_error( slug ){
+		const cols = plugin_report_vars.cols_per_row || 9;
+		const msg = plugin_report_vars.ajax_error || 'Error';
+		$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith(
+			'<tr class="pluginreport-row-error"><td colspan="' + cols + '">' + msg + '</td></tr>'
+		);
 	}
 
 	// kick things off
