@@ -121,7 +121,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			} else {
 				$page_url = 'plugins.php?page=plugin_report';
 			}
-			echo '<a href="' . esc_url( wp_nonce_url( admin_url( $page_url . '&clear_cache=' . current_time( 'timestamp' ) ), 'plugin_report_clear_cache' ) ) . '">' . esc_html__( 'Clear cached plugin data and reload', 'plugin-report' ) . '</a>';
+			echo '<a href="' . esc_url( wp_nonce_url( admin_url( $page_url . '&clear_cache=' . time() ), 'plugin_report_clear_cache' ) ) . '">' . esc_html__( 'Clear cached plugin data and reload', 'plugin-report' ) . '</a>';
 			echo '</p>';
 			echo '<h2>' . esc_html__( 'Currently installed plugins', 'plugin-report' ) . '</h2>';
 			echo '<p id="plugin-report-progress"></p>';
@@ -396,7 +396,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 */
 		private function check_exists_in_svn( $slug ) {
 			// Attempt to load the plugin's SVN repo page.
-			$response = wp_remote_get( 'https://plugins.svn.wordpress.org/' . rawurlencode( $slug ) . '/' );
+			$response = wp_safe_remote_get( 'https://plugins.svn.wordpress.org/' . rawurlencode( $slug ) . '/' );
 			// If the return value was a WP_Error, assume the answer is no.
 			if ( is_wp_error( $response ) ) {
 				return false;
@@ -541,8 +541,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Last updates.
 				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->last_updated ) ) {
 					$time_update = new DateTime( $report['repo_info']->last_updated );
-					$time_diff   = human_time_diff( $time_update->getTimestamp(), current_time( 'timestamp' ) );
-					$css_class   = $this->get_timediff_risk_classname( current_time( 'timestamp' ) - $time_update->getTimestamp() );
+					$time_diff   = human_time_diff( $time_update->getTimestamp(), time() );
+					$css_class   = $this->get_timediff_risk_classname( time() - $time_update->getTimestamp() );
 					$html       .= '<td class="' . esc_attr( $css_class ) . '" data-sort="' . esc_attr( (string) $time_update->getTimestamp() ) . '">' . esc_html( $time_diff ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
