@@ -1,5 +1,5 @@
 === Plugin Report ===
-Contributors: roytanck, zodiac1978, pedromendonca
+Contributors: roytanck, zodiac1978, pedromendonca, apermo
 Tags: plugin info, admin, plugins, multisite
 Requires at least: 4.6
 Tested up to: 6.9
