@@ -449,21 +449,21 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 						if ( isset( $report['repo_error_code'] ) && $report['repo_error_code'] === 'plugins_api_failed' ) {
 							// Plugin is not available in the wp.org repo.
 							if ( isset( $report['exists_in_svn'] ) && $report['exists_in_svn'] === true ) {
-								$html .= '<td class="' . self::CSS_CLASS_HIGH . '">' . __( 'wordpress.org, plugin closed', 'plugin-report' ) . '</td>';
+								$html .= '<td class="' . esc_attr( self::CSS_CLASS_HIGH ) . '">' . esc_html__( 'wordpress.org, plugin closed', 'plugin-report' ) . '</td>';
 							} else {
-								$html .= '<td class="' . self::CSS_CLASS_HIGH . '">' . __( 'wordpress.org, plugin not found', 'plugin-report' ) . '</td>';
+								$html .= '<td class="' . esc_attr( self::CSS_CLASS_HIGH ) . '">' . esc_html__( 'wordpress.org, plugin not found', 'plugin-report' ) . '</td>';
 							}
 						} else {
 							// Plugin is available on wp.org.
-							$html .= '<td class="' . self::CSS_CLASS_LOW . '">wordpress.org</td>';
+							$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">wordpress.org</td>';
 						}
 					} else {
 						if ( $parsed_repo_url && isset( $parsed_repo_url['host'] ) ) {
 							// Update URI is a valid URL, display the host.
-							$html .= '<td class="' . self::CSS_CLASS_MED . '">' . esc_html( $repo_host ) . '</td>';
+							$html .= '<td class="' . esc_attr( self::CSS_CLASS_MED ) . '">' . esc_html( $repo_host ) . '</td>';
 						} else {
 							// Some other value (like 'false'), so assume updates are disabled.
-							$html .= '<td class="' . self::CSS_CLASS_MED . '">' . __( 'Updates disabled', 'plugin-report' ) . '</td>';
+							$html .= '<td class="' . esc_attr( self::CSS_CLASS_MED ) . '">' . esc_html__( 'Updates disabled', 'plugin-report' ) . '</td>';
 						}
 					}
 				} elseif ( version_compare( $wp_version, '5.8', '<' ) ) {
@@ -479,23 +479,23 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					$activation_status = $this->get_multisite_activation( $report['file_path'] );
 					if ( true === $activation_status['network'] ) {
 						$css_class = self::CSS_CLASS_LOW;
-						$html     .= '<td class="' . $css_class . '">' . __( 'Network activated', 'plugin-report' ) . '</td>';
+						$html     .= '<td class="' . esc_attr( $css_class ) . '">' . esc_html__( 'Network activated', 'plugin-report' ) . '</td>';
 					} else {
 						$css_class = ( $activation_status['active'] > 0 ) ? self::CSS_CLASS_LOW : self::CSS_CLASS_HIGH;
-						$html     .= '<td class="' . $css_class . '">' . $activation_status['active'] . '/' . $activation_status['sites'] . '</td>';
+						$html     .= '<td class="' . esc_attr( $css_class ) . '">' . absint( $activation_status['active'] ) . '/' . absint( $activation_status['sites'] ) . '</td>';
 					}
 				} else {
 					if ( isset( $report['file_path'] ) ) {
 						$active    = is_plugin_active( $report['file_path'] ) ? __( 'Yes', 'plugin-report' ) : __( 'No', 'plugin-report' );
 						$css_class = is_plugin_active( $report['file_path'] ) ? self::CSS_CLASS_LOW : self::CSS_CLASS_HIGH;
 					}
-					$html .= '<td class="' . $css_class . '">' . $active . '</td>';
+					$html .= '<td class="' . esc_attr( $css_class ) . '">' . esc_html( $active ) . '</td>';
 				}
 
 				// Installed / available version.
 				if ( isset( $report['repo_info'] ) ) {
 					$css_class = $this->get_version_risk_classname( $report['local_info']['Version'], $report['repo_info']->version );
-					$html     .= '<td class="' . $css_class . '">';
+					$html     .= '<td class="' . esc_attr( $css_class ) . '">';
 					$html     .= esc_html( $report['local_info']['Version'] );
 					if ( $report['local_info']['Version'] !== $report['repo_info']->version ) {
 						// Any platform upgrades needed?
@@ -523,12 +523,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 				// Auto-update.
 				if ( version_compare( $wp_version, '5.5', '<' ) ) {
-					$html .= '<td>' . __( 'Requires WordPress 5.5 or higher', 'plugin-report' ) . '</td>';
+					$html .= '<td>' . esc_html__( 'Requires WordPress 5.5 or higher', 'plugin-report' ) . '</td>';
 				} else {
 					if ( isset( $report['auto-update'] ) && $report['auto-update'] ) {
-						$html .= '<td class="' . self::CSS_CLASS_LOW . '">' . __( 'Enabled', 'plugin-report' ) . '</td>';
+						$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">' . esc_html__( 'Enabled', 'plugin-report' ) . '</td>';
 					} else {
-						$html .= '<td>' . __( 'Not enabled', 'plugin-report' ) . '</td>';
+						$html .= '<td>' . esc_html__( 'Not enabled', 'plugin-report' ) . '</td>';
 					}
 				}
 
@@ -537,7 +537,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					$time_update = new DateTime( $report['repo_info']->last_updated );
 					$time_diff   = human_time_diff( $time_update->getTimestamp(), current_time( 'timestamp' ) );
 					$css_class   = $this->get_timediff_risk_classname( current_time( 'timestamp' ) - $time_update->getTimestamp() );
-					$html       .= '<td class="' . $css_class . '" data-sort="' . esc_attr( (string) $time_update->getTimestamp() ) . '">' . esc_html( $time_diff ) . '</td>';
+					$html       .= '<td class="' . esc_attr( $css_class ) . '" data-sort="' . esc_attr( (string) $time_update->getTimestamp() ) . '">' . esc_html( $time_diff ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
 				}
@@ -545,7 +545,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Tested up to.
 				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->tested ) && ! empty( $report['repo_info']->tested ) ) {
 					$css_class = $this->get_version_risk_classname( $report['repo_info']->tested, $wp_latest, true );
-					$html     .= '<td class="' . $css_class . '">' . esc_html( $report['repo_info']->tested ) . '</td>';
+					$html     .= '<td class="' . esc_attr( $css_class ) . '">' . esc_html( $report['repo_info']->tested ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
 				}
@@ -553,8 +553,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Overall user rating.
 				if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->num_ratings ) && isset( $report['repo_info']->rating ) ) {
 					$css_class  = ( intval( $report['repo_info']->num_ratings ) > 0 ) ? $this->get_percentage_risk_classname( intval( $report['repo_info']->rating ) ) : '';
-					$value_text = ( ( intval( $report['repo_info']->num_ratings ) > 0 ) ? esc_html( $report['repo_info']->rating ) . '%' : esc_html__( 'No data available', 'plugin-report' ) );
-					$html      .= '<td class="' . $css_class . '">' . $value_text . '</td>';
+					$value_text = ( ( intval( $report['repo_info']->num_ratings ) > 0 ) ? intval( $report['repo_info']->rating ) . '%' : esc_html__( 'No data available', 'plugin-report' ) );
+					$html      .= '<td class="' . esc_attr( $css_class ) . '">' . esc_html( $value_text ) . '</td>';
 				} else {
 					$html .= $this->render_error_cell();
 				}
@@ -572,7 +572,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		 * @param string $message   Message to be shown.
 		 */
 		private function render_error_row( $message ) {
-			return '<tr class="pluginreport-row-error"><td colspan="' . self::COLS_PER_ROW . '">' . $message . '</td></tr>';
+			return '<tr class="pluginreport-row-error"><td colspan="' . (int) self::COLS_PER_ROW . '">' . esc_html( $message ) . '</td></tr>';
 		}
 
 
@@ -585,7 +585,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			if ( ! $message ) {
 				$message = esc_html__( 'No data available', 'plugin-report' );
 			}
-			return '<td class="pluginreport-cell-error" data-sort="0">' . $message . '</td>';
+			return '<td class="pluginreport-cell-error" data-sort="0">' . esc_html( $message ) . '</td>';
 		}
 
 
