@@ -703,14 +703,13 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Get a list of all sites in the multisite install.
 				$args  = array(
 					'number' => 9999,
-					'fields' => 'ids',
 				);
 				$sites = get_sites( $args );
 				// Add the total number of sites to the return array.
 				$activation_status['sites'] = count( $sites );
 				// Loop through the sites to find where the plugin is active.
-				foreach ( $sites as $site_id ) {
-					$plugins = get_blog_option( (int) $site_id, 'active_plugins', null );
+				foreach ( $sites as $site ) {
+					$plugins = get_blog_option( (int) $site->blog_id, 'active_plugins', null );
 					if ( $plugins ) {
 						foreach ( $plugins as $plugin_path ) {
 							if ( $plugin_path === $path ) {
