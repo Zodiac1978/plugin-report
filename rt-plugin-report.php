@@ -333,7 +333,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					}
 
 					// Use the wordpress.org repository API to get detailed information.
-					$args = array(
+					$args = (object) array(
 						'slug'   => $slug,
 						'fields' => array(
 							'description'   => false,
@@ -709,7 +709,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Add the total number of sites to the return array.
 				$activation_status['sites'] = count( $sites );
 				// Loop through the sites to find where the plugin is active.
-				foreach ( $sites as $site_id ) {
+				foreach ( $sites as $site ) {
+					$site_id = is_object( $site ) ? (int) $site->blog_id : (int) $site;
 					$plugins = get_blog_option( $site_id, 'active_plugins', null );
 					if ( $plugins ) {
 						foreach ( $plugins as $plugin_path ) {
