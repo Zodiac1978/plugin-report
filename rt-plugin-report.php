@@ -106,12 +106,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			echo '<div class="wrap">';
 			echo '<h1>' . esc_html_x( 'Plugin Report', 'Page and menu title', 'plugin-report' ) . '</h1>';
 			echo '<p>';
-			$version_temp = '<span class="' . $this->get_version_risk_classname( $wp_version, $wp_latest ) . '">' . $wp_version . '</span>';
+			$version_temp = '<span class="' . esc_attr( $this->get_version_risk_classname( $wp_version, $wp_latest ) ) . '">' . esc_html( $wp_version ) . '</span>';
 			/* translators: %1$s: Current WordPress version number, %2$s: Current PHP version number */
-			echo sprintf( esc_html__( 'Currently running WordPress version %1$s and PHP version %2$s.', 'plugin-report' ), $version_temp, phpversion() );
+			echo wp_kses_post( sprintf( esc_html__( 'Currently running WordPress version %1$s and PHP version %2$s.', 'plugin-report' ), $version_temp, esc_html( phpversion() ) ) );
 			if ( version_compare( $wp_version, $wp_latest, '<' ) ) {
 				/* translators: %s = Available new version number */
-				echo sprintf( ' (' . esc_html__( 'An upgrade to %s is available', 'plugin-report' ) . ')', $wp_latest );
+				echo esc_html( sprintf( ' (' . esc_html__( 'An upgrade to %s is available', 'plugin-report' ) . ')', $wp_latest ) );
 			}
 			echo '</p>';
 			echo '<p>';
@@ -149,7 +149,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$cache     = get_site_transient( $cache_key );
 				if ( $cache ) {
 					// Use the cached report to create a table row.
-					echo $this->render_table_row( $cache );
+					echo wp_kses( $this->render_table_row( $cache ), $this->get_table_row_allowed_html() );
 				} else {
 					// Render a special table row that's used as a signal to the front-end js that new data is needed.
 					echo '<tr class="plugin-report-row-temp-' . esc_attr( $slug ) . '"><td colspan="' . (int) self::COLS_PER_ROW . '">' . esc_html__( 'Loading...', 'plugin-report' ) . '</td></tr>';
@@ -592,6 +592,30 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				$message = esc_html__( 'No data available', 'plugin-report' );
 			}
 			return '<td class="pluginreport-cell-error" data-sort="0">' . esc_html( $message ) . '</td>';
+		}
+
+
+		/**
+		 * Return allowed HTML for generated plugin table rows.
+		 */
+		private function get_table_row_allowed_html() {
+			return array(
+				'tr'     => array(
+					'class' => true,
+				),
+				'td'     => array(
+					'class'     => true,
+					'colspan'   => true,
+					'data-sort' => true,
+				),
+				'a'      => array(
+					'href' => true,
+				),
+				'strong' => array(),
+				'span'   => array(
+					'class' => true,
+				),
+			);
 		}
 
 
