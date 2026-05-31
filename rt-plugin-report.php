@@ -3,7 +3,7 @@
  * Plugin Name:       Plugin Report
  * Plugin URI:        https://wordpress.org/plugins/plugin-report/
  * Description:       Provides detailed information about currently installed plugins
- * Version:           2.2.2
+ * Version:           2.2.3
  * Requires at least: 4.6
  * Requires PHP:      5.6
  * Author:            Torsten Landsiedel
@@ -31,7 +31,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 		const CSS_CLASS_HIGH = 'pr-risk-high';
 
 		// Other class constants.
-		const PLUGIN_VERSION        = '2.2.2';
+		const PLUGIN_VERSION        = '2.2.3';
 		const COLS_PER_ROW          = 9;
 		const CACHE_LIFETIME        = DAY_IN_SECONDS;
 		const CACHE_LIFETIME_NOREPO = WEEK_IN_SECONDS;

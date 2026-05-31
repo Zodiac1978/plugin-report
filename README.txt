@@ -2,9 +2,9 @@
 Contributors: roytanck, zodiac1978, pedromendonca, apermo
 Tags: plugin info, admin, plugins, multisite
 Requires at least: 4.6
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 5.6
-Stable tag: 2.2.2
+Stable tag: 2.2.3
 License: GPLv3
 
 A WordPress plugin that provides detailed information about currently installed plugins.
@@ -37,6 +37,17 @@ Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [table
 
 
 == Changelog ==
+
+= 2.2.3 (2026-05-31) =
+* Tested up to WordPress 7.0
+* Tablesort updated to the latest version (5.7.1)
+* Guard rail for duplicate JS executions
+* fix(security): harden output escaping, CSRF, and SVN check (Thanks, @apermo)
+* fix(js): replace deprecated jQuery and var (Thanks, @apermo)
+* fix: use TextDomain as slug for single-file plugins (Thanks, @apermo)
+* fix(phpstan): cast timestamp to string for esc_attr (Thanks, @apermo)
+* Add even more escaping
+* Add Christoph (apermo) as new contributor
 
 = 2.2.2 (2026-01-18) =
 * Tested up to WordPress 6.9
