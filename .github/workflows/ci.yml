@@ -55,6 +55,8 @@ jobs:
   plugin-check:
     name: Plugin Check
     runs-on: ubuntu-latest
+    env:
+      NPM_CONFIG_LOGLEVEL: error
 
     steps:
     - uses: actions/checkout@v4
