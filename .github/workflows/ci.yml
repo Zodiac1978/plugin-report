@@ -2,11 +2,61 @@ name: CI
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
-  build-test:
+  phpstan:
+    name: PHPStan
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
     - uses: ramsey/composer-install@v2 # or alternative dependency management
     - uses: dingo-d/phpstan-wp-action@v2
+
+  spelling:
+    name: Typos
+    runs-on: ubuntu-22.04
+    timeout-minutes: 2
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Search for misspellings
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -o pipefail
+        mkdir -p "${{ runner.temp }}/typos"
+        RELEASE_ASSET_URL="$(
+          gh api /repos/crate-ci/typos/releases/latest \
+            --jq '."assets"[] | select(."name" | test("^typos-.+-x86_64-unknown-linux-musl\\.tar\\.gz$")) | ."browser_download_url"'
+        )"
+        wget --secure-protocol=TLSv1_3 --max-redirect=1 --retry-on-host-error --retry-connrefused --tries=3 \
+          --quiet --output-document=- "${RELEASE_ASSET_URL}" \
+          | tar -xz -C "${{ runner.temp }}/typos" ./typos
+        "${{ runner.temp }}/typos/typos" --version
+        git grep --files-with-matches -I -e '.' -- ':!:dist/' ':!:vendor/' \
+          | "${{ runner.temp }}/typos/typos" --file-list - --format json \
+          | jq --raw-output '"::warning file=\(.path),line=\(.line_num),col=\(.byte_offset)::\"\(.typo)\" should be \"" + (.corrections // [] | join("\" or \"") + "\".")'
+
+  coding-standards:
+    name: WordPress Coding Standards
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: WPCS check
+      uses: 10up/wpcs-action@stable
+      with:
+        standard: WordPress
+        paths: .
+
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run Plugin Check
+      uses: wordpress/plugin-check-action@v1
