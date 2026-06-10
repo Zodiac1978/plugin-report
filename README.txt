@@ -140,7 +140,7 @@ Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [table
 
 = 1.2 (2019-11-26) =
 * Removed the "compatibility" column (data no longer provided by API)
-* Fixed an issue with long plugin slugs causing invalide transient keys
+* Fixed an issue with long plugin slugs causing invalid transient keys
 * Fixed an issue where version number colors were inconsistent
 
 = 1.1 (2019-11-23) =

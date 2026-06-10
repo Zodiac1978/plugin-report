@@ -89,7 +89,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			global $wp_version;
 			$plugins = get_plugins();
 
-			// Check wether a core update is available.
+			// Check whether a core update is available.
 			$wp_latest = $this->check_core_updates();
 
 			// Refresh the cache, but only if nonce is valid and this is a fresh timestamp (not if the page has been refreshed with the timestamp still in the URL).
@@ -242,7 +242,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				wp_die();
 			}
 
-			// Check user capabilites, just to be sure.
+			// Check user capabilities, just to be sure.
 			if ( ! current_user_can( is_multisite() ? 'manage_sites' : 'manage_options' ) ) {
 				wp_die();
 			}

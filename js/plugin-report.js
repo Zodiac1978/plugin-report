@@ -73,7 +73,7 @@ jQuery(document).ready( function( $ ){
 		let counter = 0;
 		// Loop trough the table header to add the header cells.
 		$('#plugin-report-table thead tr').each(function(){
-			// Use a column counter, because we'll need ot insert two extra columns.
+			// Use a column counter, because we'll need to insert two extra columns.
 			counter = 0;
 			// Loop through the header cells.
 			$(this).find('th').each(function(){
