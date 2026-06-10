@@ -380,7 +380,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			} else {
 				return null;
 			}
-
 		}
 
 
@@ -452,9 +451,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					// Check if the plugin is supposed to be hosted on wp.org.
 					if ( empty( $repo_host ) || strtolower( $repo_host ) === 'w.org' || strtolower( $repo_host ) === 'wordpress.org' ) {
 						// Plugin should be available on wp.org, check if we got a 'not found' error.
-						if ( isset( $report['repo_error_code'] ) && $report['repo_error_code'] === 'plugins_api_failed' ) {
+						if ( isset( $report['repo_error_code'] ) && 'plugins_api_failed' === $report['repo_error_code'] ) {
 							// Plugin is not available in the wp.org repo.
-							if ( isset( $report['exists_in_svn'] ) && $report['exists_in_svn'] === true ) {
+							if ( isset( $report['exists_in_svn'] ) && true === $report['exists_in_svn'] ) {
 								$html .= '<td class="' . esc_attr( self::CSS_CLASS_HIGH ) . '">' . esc_html__( 'wordpress.org, plugin closed', 'plugin-report' ) . '</td>';
 							} else {
 								$html .= '<td class="' . esc_attr( self::CSS_CLASS_HIGH ) . '">' . esc_html__( 'wordpress.org, plugin not found', 'plugin-report' ) . '</td>';
@@ -464,7 +463,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 							$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">wordpress.org</td>';
 						}
 					} else {
-						if ( $parsed_repo_url && isset( $parsed_repo_url['host'] ) ) {
+						if ( $parsed_repo_url && isset( $parsed_repo_url['host'] ) ) { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 							// Update URI is a valid URL, display the host.
 							$html .= '<td class="' . esc_attr( self::CSS_CLASS_MED ) . '">' . esc_html( $repo_host ) . '</td>';
 						} else {
@@ -531,7 +530,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				if ( version_compare( $wp_version, '5.5', '<' ) ) {
 					$html .= '<td>' . esc_html__( 'Requires WordPress 5.5 or higher', 'plugin-report' ) . '</td>';
 				} else {
-					if ( isset( $report['auto-update'] ) && $report['auto-update'] ) {
+					if ( isset( $report['auto-update'] ) && $report['auto-update'] ) { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 						$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">' . esc_html__( 'Enabled', 'plugin-report' ) . '</td>';
 					} else {
 						$html .= '<td>' . esc_html__( 'Not enabled', 'plugin-report' ) . '</td>';
@@ -790,6 +789,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 		/**
 		 * Selectively delete cache for plugins that have been updated.
+		 *
+		 * @param  WP_Upgrader $upgrader WP_Upgrader instance.
+		 * @param  array       $data     Array of bulk item update data.
 		 */
 		public function upgrade_delete_cache_items( $upgrader, $data ) {
 			// Check if plugins have been upgraded by WP.
@@ -803,7 +805,6 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				}
 			}
 		}
-
 	}
 
 	// Instantiate the class.
