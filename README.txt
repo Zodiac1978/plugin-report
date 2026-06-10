@@ -23,6 +23,10 @@ A WordPress plugin that provides detailed information about currently installed 
 
 The development of this plugin happens on [GitHub](https://github.com/Zodiac1978/plugin-report). Feel free to [submit issues](https://github.com/Zodiac1978/plugin-report/issues) there.
 
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the Plugin Report plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/612c50f1-70b0-43bb-b8f8-8c58f88ea196). The Patchstack team will assist you with verification, CVE assignment, and notify the developer of this plugin. 
+
 
 == Screenshots ==
  
@@ -37,6 +41,9 @@ Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [table
 
 
 == Changelog ==
+
+= (unreleased) =
+* Tweak: Add link to Patchstack in readme
 
 = 2.2.3 (2026-05-31) =
 * Tested up to WordPress 7.0
