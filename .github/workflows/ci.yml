@@ -42,6 +42,7 @@ jobs:
       NPM_CONFIG_LOGLEVEL: error
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v3
     - name: Run Plugin Check
       uses: wordpress/plugin-check-action@v1
