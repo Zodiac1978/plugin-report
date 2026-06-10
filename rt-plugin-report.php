@@ -10,6 +10,8 @@
  * Author URI:        https://torstenlandsiedel.de
  * License:           GPLv3
  * Network:           true
+ *
+ * @package Plugin_Report
  */
 
 // If called without WordPress, exit.
