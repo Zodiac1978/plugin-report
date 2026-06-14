@@ -42,12 +42,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
   
+      - name: Setup WP Env
+        run: npm install -g @wordpress/env
+  
+      - name: Start WP Env
+        run: wp-env start
+  
       - name: Run Plugin Check
-      
-      - run: npm install -g @wordpress/env
-      
-      - run: wp-env start
-      
         uses: wordpress/plugin-check-action@v1.1.6
         with:
           wp-version: "latest"
