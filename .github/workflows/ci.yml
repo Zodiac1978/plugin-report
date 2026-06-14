@@ -43,8 +43,11 @@ jobs:
       - uses: actions/checkout@v4
   
       - name: Run Plugin Check
-        run: npm install -g @wordpress/env
-        run: wp-env start
+      
+      - run: npm install -g @wordpress/env
+      
+      - run: wp-env start
+      
         uses: wordpress/plugin-check-action@v1.1.6
         with:
           wp-version: "latest"
