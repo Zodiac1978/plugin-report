@@ -45,4 +45,4 @@ jobs:
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1.1.6
         with:
-          wp-version: "latest"
+          wp-version: "7.0"
