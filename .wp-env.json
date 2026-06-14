@@ -1,0 +1,9 @@
+{
+  "core": "WordPress/WordPress",
+  "plugins": [ "." ],
+  "testsEnvironment": false,
+  "testsPort": 8889,
+  "config": {
+    "WP_DEBUG": true
+  }
+}
