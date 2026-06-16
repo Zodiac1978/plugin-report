@@ -10,3 +10,7 @@ A WordPress plugin that provides detailed information about currently installed 
 * Get a quick overview of the "plugin health" of your site.
 * Provide clients with a detailed report, right from their own dashboard, or as CSV spreadsheet.
 * Find plugins that are no longer active on multisite installs
+
+## Responsible Disclosure ##
+
+Please report security bugs found in the source code of the Plugin Report plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/612c50f1-70b0-43bb-b8f8-8c58f88ea196). The Patchstack team will assist you with verification, CVE assignment, and notify the developer of this plugin.
