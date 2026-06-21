@@ -360,7 +360,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 					// Add the repo info to the report.
 					if ( isset( $returned_object ) ) {
 						if ( ! is_wp_error( $returned_object ) ) {
-              if ( isset( $returned_object->version ) ) {
+							if ( isset( $returned_object->version ) ) {
 								$report['repo_info'] = $returned_object;
 								// Cache the report.
 								set_site_transient( $cache_key, $report, self::CACHE_LIFETIME );
