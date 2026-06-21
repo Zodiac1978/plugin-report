@@ -32,7 +32,7 @@ jobs:
     - name: WPCS check
       uses: 10up/wpcs-action@stable
       with:
-        standard: WordPress
+        standard: .phpcs.xml.dist
         paths: .
 
   plugin-check:
