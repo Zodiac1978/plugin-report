@@ -95,9 +95,9 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			$wp_latest = $this->check_core_updates();
 
 			// Refresh the cache, but only if nonce is valid and this is a fresh timestamp (not if the page has been refreshed with the timestamp still in the URL).
-			if ( isset( $_GET['clear_cache'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'plugin_report_clear_cache' ) ) {
-				$new_timestamp  = intval( $_GET['clear_cache'] );
-				$last_timestamp = intval( get_site_transient( 'plugin_report_cache_cleared' ) );
+			if ( isset( $_GET['clear_cache'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'plugin_report_clear_cache' ) ) {
+				$new_timestamp  = absint( wp_unslash( $_GET['clear_cache'] ) );
+				$last_timestamp = absint( get_site_transient( 'plugin_report_cache_cleared' ) );
 				if ( ! $last_timestamp || $new_timestamp > $last_timestamp ) {
 					$this->clear_cache();
 					set_site_transient( 'plugin_report_cache_cleared', $new_timestamp, self::CACHE_LIFETIME );
