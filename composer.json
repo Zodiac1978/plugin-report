@@ -23,9 +23,6 @@
         "issues": "https://github.com/Zodiac1978/plugin-report/issues",
         "source": "https://github.com/Zodiac1978/plugin-report/"
     },
-    "require": {
-        "php": ">=5.6"
-    },
     "require-dev": {
         "ext-curl": "*",
         "ext-dom": "*",
