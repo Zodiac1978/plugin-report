@@ -274,9 +274,7 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				'message' => 'Success!',
 			);
 			// Return the response.
-			echo wp_json_encode( $response );
-
-			wp_die();
+			wp_send_json( $response );
 		}
 
 

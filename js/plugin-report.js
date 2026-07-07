@@ -53,14 +53,12 @@ jQuery(document).ready( function( $ ){
 			'nonce': plugin_report_vars.ajax_nonce
 		};
 
-		jQuery.post( ajaxurl, data, function(response) {
-			// parse the response
-			const obj = JSON.parse(response);
+		jQuery.post( ajaxurl, data, function( response ) {
 			// replace the temporary table row with the new data
-			$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith( obj.html );
+			$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith( response.html );
 			// on to the next...
 			rtpr_process_next_plugin();
-		});
+		}, 'json' );
 	}
 
 	// kick things off
