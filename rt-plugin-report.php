@@ -462,14 +462,12 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 							// Plugin is available on wp.org.
 							$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">wordpress.org</td>';
 						}
+					} elseif ( $parsed_repo_url && isset( $parsed_repo_url['host'] ) ) {
+						// Update URI is a valid URL, display the host.
+						$html .= '<td class="' . esc_attr( self::CSS_CLASS_MED ) . '">' . esc_html( $repo_host ) . '</td>';
 					} else {
-						if ( $parsed_repo_url && isset( $parsed_repo_url['host'] ) ) { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
-							// Update URI is a valid URL, display the host.
-							$html .= '<td class="' . esc_attr( self::CSS_CLASS_MED ) . '">' . esc_html( $repo_host ) . '</td>';
-						} else {
-							// Some other value (like 'false'), so assume updates are disabled.
-							$html .= '<td class="' . esc_attr( self::CSS_CLASS_MED ) . '">' . esc_html__( 'Updates disabled', 'plugin-report' ) . '</td>';
-						}
+						// Some other value (like 'false'), so assume updates are disabled.
+						$html .= '<td class="' . esc_attr( self::CSS_CLASS_MED ) . '">' . esc_html__( 'Updates disabled', 'plugin-report' ) . '</td>';
 					}
 				} elseif ( version_compare( $wp_version, '5.8', '<' ) ) {
 					$html .= $this->render_error_cell( esc_html__( 'Only available in WP 5.8+', 'plugin-report' ) );
@@ -529,12 +527,10 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 				// Auto-update.
 				if ( version_compare( $wp_version, '5.5', '<' ) ) {
 					$html .= '<td>' . esc_html__( 'Requires WordPress 5.5 or higher', 'plugin-report' ) . '</td>';
+				} elseif ( isset( $report['auto-update'] ) && $report['auto-update'] ) {
+					$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">' . esc_html__( 'Enabled', 'plugin-report' ) . '</td>';
 				} else {
-					if ( isset( $report['auto-update'] ) && $report['auto-update'] ) { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
-						$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">' . esc_html__( 'Enabled', 'plugin-report' ) . '</td>';
-					} else {
-						$html .= '<td>' . esc_html__( 'Not enabled', 'plugin-report' ) . '</td>';
-					}
+					$html .= '<td>' . esc_html__( 'Not enabled', 'plugin-report' ) . '</td>';
 				}
 
 				// Last updates.

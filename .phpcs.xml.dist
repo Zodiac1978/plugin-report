@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<ruleset name="Plugin Report">
+	<description>Coding standards for the Plugin Report plugin.</description>
+
+	<!-- Show sniff codes and progress; the CI workflow passes the path to scan. -->
+	<arg value="ps"/>
+	<arg name="extensions" value="php"/>
+
+	<!-- Directories that don't need linting. -->
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+
+	<rule ref="WordPress">
+		<!--
+		The plugin ships as a single bootstrap file named after the plugin
+		(rt-plugin-report.php). Renaming it to class-*.php would break the
+		plugin entry point, so the class-file naming rule does not apply.
+		-->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+	</rule>
+
+	<!-- Recognise the plugin's text domain. -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="plugin-report"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Recognise the plugin's global prefixes. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="RT_Plugin_Report"/>
+				<element value="rt_plugin_report"/>
+				<element value="plugin_report"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

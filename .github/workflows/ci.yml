@@ -32,7 +32,7 @@ jobs:
     - name: WPCS check
       uses: 10up/wpcs-action@stable
       with:
-        standard: WordPress
+        standard: .phpcs.xml.dist
         paths: .
 
   plugin-check:
@@ -52,3 +52,7 @@ jobs:
         uses: wordpress/plugin-check-action@v1.1.6
         with:
           wp-version: "latest"
+          # Development-only files that ship excluded via .distignore but are
+          # present in the CI checkout; skip them so Plugin Check doesn't flag
+          # them as hidden/application files.
+          exclude-files: .wp-env.json,.phpcs.xml.dist

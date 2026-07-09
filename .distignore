@@ -7,6 +7,7 @@
 # Files
 /.distignore
 /.gitignore
+/.phpcs.xml.dist
 /.wp-env.json
 /composer.json
 /composer.lock
