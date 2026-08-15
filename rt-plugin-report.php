@@ -19,9 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
-	require_once __DIR__ . '/class-rt-plugin-report.php';
+if ( is_admin() && ! class_exists( 'Plugin_Report' ) ) {
+	require_once __DIR__ . '/class-plugin-report.php';
 
-	$plugin_report_instance = new RT_Plugin_Report();
+	$plugin_report_instance = new Plugin_Report();
 	$plugin_report_instance->init();
 }

@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Plugin Report main class.
  */
-class RT_Plugin_Report {
+class Plugin_Report {
 
 	// CSS class constants.
 	const CSS_CLASS_LOW  = 'pr-risk-low';
