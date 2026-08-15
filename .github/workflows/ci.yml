@@ -57,6 +57,7 @@ jobs:
         uses: wordpress/plugin-check-action@v1.1.6
         with:
           build-dir: "./zipfile"
+          slug: "plugin-report"
           exclude-checks: |
             plugin_updater
             trademarks
