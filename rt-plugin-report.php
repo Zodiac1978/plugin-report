@@ -631,6 +631,27 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 
 
 		/**
+		 * Return the preceding stable WordPress version for a beta or RC version.
+		 *
+		 * @param string $version_string   Complete WordPress version number.
+		 */
+		private function get_stable_version_for_prerelease( $version_string ) {
+			if ( ! preg_match( '/^([0-9]+)\.([0-9]+)(?:\.|-)?(?:beta|rc)/i', $version_string, $matches ) ) {
+				return $version_string;
+			}
+
+			$major = intval( $matches[1] );
+			$minor = intval( $matches[2] );
+
+			if ( $minor > 0 ) {
+				return $major . '.' . ( $minor - 1 );
+			}
+
+			return ( $major - 1 ) . '.9';
+		}
+
+
+		/**
 		 * Figure out what CSS class to use based on current and optimal version numbers.
 		 *
 		 * @param string $available    Available version.
@@ -641,6 +662,8 @@ if ( is_admin() && ! class_exists( 'RT_Plugin_Report' ) ) {
 			// Use only the first two elements of the version number if $major_only is set to true.
 			// This is used for WP version numbers, where point releases are not considered a risk.
 			if ( $major_only ) {
+				// During beta and RC testing, plugins tested with the current stable release are not outdated yet.
+				$optimal   = $this->get_stable_version_for_prerelease( $optimal );
 				$available = $this->get_major_version( $available );
 				$optimal   = $this->get_major_version( $optimal );
 			}
