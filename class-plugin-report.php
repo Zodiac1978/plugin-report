@@ -421,14 +421,14 @@ class Plugin_Report {
 			$html = '<tr class="plugin-report-row-' . esc_attr( $report['slug'] ) . '">';
 
 			// Name.
-			if ( isset( $report['local_info']['PluginURI'] ) && ! empty( $report['local_info']['PluginURI'] ) ) {
+			if ( ! empty( $report['local_info']['PluginURI'] ) ) {
 				$html .= '<td><a href="' . esc_url( $report['local_info']['PluginURI'] ) . '"><strong>' . esc_html( $report['local_info']['Name'] ) . '</strong></a></td>';
 			} else {
 				$html .= '<td><strong>' . esc_html( $report['local_info']['Name'] ) . '</strong></td>';
 			}
 
 			// Author.
-			if ( isset( $report['local_info']['AuthorURI'] ) && ! empty( $report['local_info']['AuthorURI'] ) ) {
+			if ( ! empty( $report['local_info']['AuthorURI'] ) ) {
 				$html .= '<td><a href="' . esc_url( $report['local_info']['AuthorURI'] ) . '">' . esc_html( $report['local_info']['Author'] ) . '</a></td>';
 			} else {
 				$html .= '<td>' . esc_html( $report['local_info']['Author'] ) . '</td>';
@@ -480,7 +480,7 @@ class Plugin_Report {
 					$html     .= '<td class="' . esc_attr( $css_class ) . '">' . absint( $activation_status['active'] ) . '/' . absint( $activation_status['sites'] ) . '</td>';
 				}
 			} else {
-				if ( isset( $report['file_path'] ) && isset( $report['repo_info']->version ) ) {
+				if ( isset( $report['file_path'] ) ) {
 					$active    = is_plugin_active( $report['file_path'] ) ? __( 'Yes', 'plugin-report' ) : __( 'No', 'plugin-report' );
 					$css_class = is_plugin_active( $report['file_path'] ) ? self::CSS_CLASS_LOW : self::CSS_CLASS_HIGH;
 				}
@@ -488,7 +488,7 @@ class Plugin_Report {
 			}
 
 			// Installed / available version.
-			if ( isset( $report['repo_info'] ) ) {
+			if ( isset( $report['repo_info']->version ) ) {
 				$css_class = $this->get_version_risk_classname( $report['local_info']['Version'], $report['repo_info']->version );
 				$html     .= '<td class="' . esc_attr( $css_class ) . '">';
 				$html     .= esc_html( $report['local_info']['Version'] );
@@ -519,14 +519,14 @@ class Plugin_Report {
 			// Auto-update.
 			if ( version_compare( $wp_version, '5.5', '<' ) ) {
 				$html .= '<td>' . esc_html__( 'Requires WordPress 5.5 or higher', 'plugin-report' ) . '</td>';
-			} elseif ( isset( $report['auto-update'] ) && $report['auto-update'] ) {
+			} elseif ( ! empty( $report['auto-update'] ) ) {
 				$html .= '<td class="' . esc_attr( self::CSS_CLASS_LOW ) . '">' . esc_html__( 'Enabled', 'plugin-report' ) . '</td>';
 			} else {
 				$html .= '<td>' . esc_html__( 'Not enabled', 'plugin-report' ) . '</td>';
 			}
 
 			// Last updates.
-			if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->last_updated ) ) {
+			if ( isset( $report['repo_info']->last_updated ) ) {
 				$time_update = new DateTime( $report['repo_info']->last_updated );
 				$time_diff   = human_time_diff( $time_update->getTimestamp(), time() );
 				$css_class   = $this->get_timediff_risk_classname( time() - $time_update->getTimestamp() );
@@ -536,7 +536,7 @@ class Plugin_Report {
 			}
 
 			// Tested up to.
-			if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->tested ) && ! empty( $report['repo_info']->tested ) ) {
+			if ( ! empty( $report['repo_info']->tested ) ) {
 				$css_class = $this->get_version_risk_classname( $report['repo_info']->tested, $wp_latest, true );
 				$html     .= '<td class="' . esc_attr( $css_class ) . '">' . esc_html( $report['repo_info']->tested ) . '</td>';
 			} else {
@@ -544,7 +544,7 @@ class Plugin_Report {
 			}
 
 			// Overall user rating.
-			if ( isset( $report['repo_info'] ) && isset( $report['repo_info']->num_ratings ) && isset( $report['repo_info']->rating ) ) {
+			if ( isset( $report['repo_info']->num_ratings, $report['repo_info']->rating ) ) {
 				$css_class  = ( intval( $report['repo_info']->num_ratings ) > 0 ) ? $this->get_percentage_risk_classname( intval( $report['repo_info']->rating ) ) : '';
 				$value_text = ( ( intval( $report['repo_info']->num_ratings ) > 0 ) ? intval( $report['repo_info']->rating ) . '%' : esc_html__( 'No data available', 'plugin-report' ) );
 				$html      .= '<td class="' . esc_attr( $css_class ) . '">' . esc_html( $value_text ) . '</td>';
