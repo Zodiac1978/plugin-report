@@ -51,6 +51,7 @@ Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [table
 * Hardened cache-clear request validation and sanitization
 * Switched AJAX plugin-info responses to wp_send_json()
 * Fixed compatibility highlighting for WordPress beta and RC releases
+* Added an orange compatibility warning and a help tab explaining the color thresholds
 * Prevented invalid plugin repository data without a version from being cached or accessed (thanks, @apermo)
 * Added graceful handling for failed or malformed AJAX requests (thanks, @apermo)
 
