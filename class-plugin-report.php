@@ -21,7 +21,7 @@ class Plugin_Report {
 	const CSS_CLASS_HIGH = 'pr-risk-high';
 
 	// Other class constants.
-	const PLUGIN_VERSION        = '2.2.3';
+	const PLUGIN_VERSION        = '2.2.4';
 	const COLS_PER_ROW          = 9;
 	const CACHE_LIFETIME        = DAY_IN_SECONDS;
 	const CACHE_LIFETIME_NOREPO = WEEK_IN_SECONDS;

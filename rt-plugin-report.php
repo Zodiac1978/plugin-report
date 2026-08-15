@@ -3,7 +3,7 @@
  * Plugin Name:       Plugin Report
  * Plugin URI:        https://wordpress.org/plugins/plugin-report/
  * Description:       Provides detailed information about currently installed plugins
- * Version:           2.2.3
+ * Version:           2.2.4
  * Requires at least: 4.6
  * Requires PHP:      5.6
  * Author:            Torsten Landsiedel

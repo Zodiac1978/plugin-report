@@ -2,9 +2,9 @@
 Contributors: roytanck, zodiac1978, pedromendonca, apermo
 Tags: plugin info, admin, plugins, multisite
 Requires at least: 4.6
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 5.6
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 License: GPLv3
 
 A WordPress plugin that provides detailed information about currently installed plugins.
@@ -42,8 +42,17 @@ Special thanks go to [Tristen Forsythe Brown](http://tristen.ca/) for the [table
 
 == Changelog ==
 
-= (unreleased) =
-* Tweak: Add link to Patchstack in readme
+= 2.2.4 (2026-08-15) =
+* Tested up to WordPress 7.1
+* Added WPCS, typo, and Plugin Check checks to the CI workflow
+* Fixed typos and WordPress Coding Standards warnings
+* Added information about the Patchstack managed Vulnerability Disclosure Program (mVDP)
+* Removed a redundant update-data check identified by PHPStan
+* Hardened cache-clear request validation and sanitization
+* Switched AJAX plugin-info responses to wp_send_json()
+* Fixed compatibility highlighting for WordPress beta and RC releases
+* Prevented invalid plugin repository data without a version from being cached or accessed (thanks, @apermo)
+* Added graceful handling for failed or malformed AJAX requests (thanks, @apermo)
 
 = 2.2.3 (2026-05-31) =
 * Tested up to WordPress 7.0
