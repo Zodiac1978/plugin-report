@@ -30,6 +30,11 @@
         "ext-sqlite3": "*",
         "szepeviktor/phpstan-wordpress": "^2.0"
     },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    },
     "autoload": {
         "psr-4": {
             "App\\": "src"
