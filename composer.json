@@ -23,15 +23,17 @@
         "issues": "https://github.com/Zodiac1978/plugin-report/issues",
         "source": "https://github.com/Zodiac1978/plugin-report/"
     },
-    "require": {
-        "php": ">=5.6"
-    },
     "require-dev": {
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-sqlite3": "*",
         "szepeviktor/phpstan-wordpress": "^2.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
     },
     "autoload": {
         "psr-4": {
