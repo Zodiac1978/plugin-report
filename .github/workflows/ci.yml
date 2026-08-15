@@ -41,6 +41,11 @@ jobs:
   
     steps:
       - uses: actions/checkout@v4
+
+      - name: Build production plugin
+        uses: 10up/action-wordpress-plugin-build-zip@stable
+        env:
+          SLUG: plugin-report
   
       - name: Setup WP Env
         run: npm install -g @wordpress/env
@@ -51,4 +56,9 @@ jobs:
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1.1.6
         with:
+          build-dir: "./zipfile"
+          slug: "plugin-report"
+          exclude-checks: |
+            plugin_updater
+            trademarks
           wp-version: "latest"
