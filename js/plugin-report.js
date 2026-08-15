@@ -58,7 +58,19 @@ jQuery(document).ready( function( $ ){
 			$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith( response.html );
 			// on to the next...
 			rtpr_process_next_plugin();
-		}, 'json' );
+		}, 'json' ).fail( function() {
+			rtpr_replace_with_error( slug );
+			rtpr_process_next_plugin();
+		} );
+	}
+
+
+	function rtpr_replace_with_error( slug ){
+		const cols = plugin_report_vars.cols_per_row || 9;
+		const msg = plugin_report_vars.ajax_error || 'Error';
+		$('#plugin-report-table .plugin-report-row-temp-' + slug ).replaceWith(
+			'<tr class="pluginreport-row-error"><td colspan="' + cols + '">' + msg + '</td></tr>'
+		);
 	}
 
 	// kick things off
