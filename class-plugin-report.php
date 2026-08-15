@@ -19,6 +19,7 @@ class Plugin_Report {
 	const CSS_CLASS_LOW  = 'pr-risk-low';
 	const CSS_CLASS_MED  = 'pr-risk-medium';
 	const CSS_CLASS_HIGH = 'pr-risk-high';
+	const CSS_CLASS_WARN = 'pr-risk-warning';
 
 	// Other class constants.
 	const PLUGIN_VERSION        = '2.2.4';
@@ -57,12 +58,55 @@ class Plugin_Report {
 	 * Add a new options page to the network admin
 	 */
 	public function register_settings_page() {
-		add_plugins_page(
+		$hook = add_plugins_page(
 			esc_html_x( 'Plugin Report', 'Page and menu title', 'plugin-report' ),
 			esc_html_x( 'Plugin Report', 'Page and menu title', 'plugin-report' ),
 			is_multisite() ? 'manage_sites' : 'manage_options',
 			'plugin_report',
 			array( $this, 'settings_page' )
+		);
+
+		if ( $hook ) {
+			add_action( 'load-' . $hook, array( $this, 'add_help_tab' ) );
+		}
+	}
+
+
+	/**
+	 * Explain the color coding used by the report's last three columns.
+	 */
+	public function add_help_tab() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		$content  = '<h3>' . esc_html__( 'Last updated', 'plugin-report' ) . '</h3>';
+		$content .= '<ul>';
+		$content .= '<li>' . esc_html__( 'Up to 90 days: green', 'plugin-report' ) . '</li>';
+		$content .= '<li>' . esc_html__( 'More than 90 days and up to one year: neutral', 'plugin-report' ) . '</li>';
+		$content .= '<li>' . esc_html__( 'More than one year: red', 'plugin-report' ) . '</li>';
+		$content .= '</ul>';
+		$content .= '<h3>' . esc_html__( 'Tested up to WordPress version', 'plugin-report' ) . '</h3>';
+		$content .= '<ul>';
+		$content .= '<li>' . esc_html__( 'Current release or newer: green', 'plugin-report' ) . '</li>';
+		$content .= '<li>' . esc_html__( 'One or two major releases behind: orange', 'plugin-report' ) . '</li>';
+		$content .= '<li>' . esc_html__( 'Three or more major releases behind: red', 'plugin-report' ) . '</li>';
+		$content .= '</ul>';
+		$content .= '<p>' . esc_html__( 'For beta and release candidate versions, the preceding stable release is considered current.', 'plugin-report' ) . '</p>';
+		$content .= '<h3>' . esc_html__( 'Rating', 'plugin-report' ) . '</h3>';
+		$content .= '<ul>';
+		$content .= '<li>' . esc_html__( '90% or higher: green', 'plugin-report' ) . '</li>';
+		$content .= '<li>' . esc_html__( '70% to 89%, or no ratings: neutral', 'plugin-report' ) . '</li>';
+		$content .= '<li>' . esc_html__( 'Below 70%: red', 'plugin-report' ) . '</li>';
+		$content .= '</ul>';
+
+		$screen->add_help_tab(
+			array(
+				'id'      => 'plugin-report-column-colors',
+				'title'   => esc_html__( 'Column colors', 'plugin-report' ),
+				'content' => $content,
+			)
 		);
 	}
 
@@ -658,6 +702,17 @@ class Plugin_Report {
 		// If the version is equal or higher, indicate low risk.
 		if ( version_compare( $available, $optimal, '>=' ) ) {
 			return self::CSS_CLASS_LOW;
+		}
+		// Plugins tested with one of the two preceding major WP releases receive a warning.
+		if ( $major_only ) {
+			$available_parts = array_pad( array_map( 'intval', explode( '.', $available ) ), 2, 0 );
+			$optimal_parts   = array_pad( array_map( 'intval', explode( '.', $optimal ) ), 2, 0 );
+			$available_index = ( $available_parts[0] * 10 ) + $available_parts[1];
+			$optimal_index   = ( $optimal_parts[0] * 10 ) + $optimal_parts[1];
+
+			if ( $optimal_index - $available_index <= 2 ) {
+				return self::CSS_CLASS_WARN;
+			}
 		}
 		// Else, indicate high risk.
 		return self::CSS_CLASS_HIGH;
