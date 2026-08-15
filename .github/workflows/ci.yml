@@ -42,19 +42,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP and WP-CLI
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: latest
-          coverage: none
-          tools: wp-cli
-
       - name: Build production plugin
-        run: |
-          wp package install wp-cli/dist-archive-command:@stable
-          wp dist-archive . /tmp/plugin-report.zip
-          mkdir -p build
-          unzip /tmp/plugin-report.zip -d build
+        uses: 10up/action-wordpress-plugin-build-zip@stable
+        env:
+          SLUG: plugin-report
   
       - name: Setup WP Env
         run: npm install -g @wordpress/env
@@ -65,7 +56,7 @@ jobs:
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1.1.6
         with:
-          build-dir: "./build/plugin-report"
+          build-dir: "./zipfile"
           exclude-checks: |
             plugin_updater
             trademarks
